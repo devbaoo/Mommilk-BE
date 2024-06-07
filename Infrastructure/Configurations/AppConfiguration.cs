@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Application.Services.Implementations;
+using Application.Services.Interfaces;
+using Data;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace Infrastructure.Configurations
@@ -7,9 +10,11 @@ namespace Infrastructure.Configurations
     {
         public static void AddDependenceInjection(this IServiceCollection services)
         {
-            //services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            //services.AddScoped<IProductService, ProductService>();
+            // ...
 
-            //services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
         public static void AddSwagger(this IServiceCollection services)
         {

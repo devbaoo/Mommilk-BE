@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Data;
-using Data.Repositories.Interfaces;
 
 namespace Application.Services
 {
@@ -13,10 +12,6 @@ namespace Application.Services
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-        }
-
-        public BaseService(IAccountRepository accountRepository, IMapper mapper)
-        {
         }
     }
 }

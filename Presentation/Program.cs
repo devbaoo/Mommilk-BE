@@ -1,5 +1,10 @@
 ﻿using Application.Mappings;
+using Application.Services.Implementations;
+using Application.Services.Interfaces;
 using Application.Settings;
+using Data.Repositories.Implementations;
+using Data.Repositories.Interfaces;
+using Data;
 using Domain.Entities;
 using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +20,9 @@ var allowSpecificOrigins = "_allowSpecificOrigins";
 var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 //Register service IUSerservice and Userservice
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 // Add services to the container.

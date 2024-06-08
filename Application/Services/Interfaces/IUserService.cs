@@ -12,3 +12,4 @@ namespace SuaMe88.Services.UserServices
         LoginResult GenerateToken(Customer user, List<Claim> claims, DateTime now);
     }
 }
+

@@ -3,10 +3,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SuaMe88.Data;
 using SuaMe88.Services.UserServices;
+using static SuaMe88.Data.Login;
+using System.Net;
+using Common.Extensions;
 
 namespace SuaMe88.Controllers
 {
-    [Route("api/[controller]")]
+
+
+    [Route("api/accounts")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -17,12 +22,24 @@ namespace SuaMe88.Controllers
             _userService = userService;
         }
 
-        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] Data.LoginRequest request)
         {
-            var result = await _userService.Login(request);
-            return StatusCode(result.Status, result);
+            try
+            {
+                var response = await _userService.Login(request);
+                return response.Ok();
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new Response<LoginResult>
+                {
+                    Success = false,
+                    Message = "User service - Login: " + ex.Message,
+                    Status = (int)HttpStatusCode.InternalServerError
+                };
+                return errorResponse.InternalServerError();
+            }
         }
     }
 }

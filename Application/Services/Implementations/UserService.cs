@@ -13,6 +13,7 @@ using Domain.Models.Auth;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Domain.Models.CreateUserRequest;
 
 namespace Mommilk88.Services.UserServices
 {
@@ -106,13 +107,13 @@ namespace Mommilk88.Services.UserServices
                 Token = token,
             };
         }
-        /*public async Task<ApiResponse<CreateUserRequest>> Register(CreateUserRequest newUser)
+        public async Task<Response<CreateUserRequest>> Register(CreateUserRequest newUser)
         {
             try
             {
-                if (newUser.Username == null || newUser.Password == null)
+                if (newUser.Email == null || newUser.Password == null)
                 {
-                    return new ApiResponse<CreateUserRequest>
+                    return new Response<CreateUserRequest>
                     {
                         Success = false,
                         Message = "Invalid username or password!",
@@ -120,9 +121,9 @@ namespace Mommilk88.Services.UserServices
                     };
                 }
 
-                if (await IsExist(newUser.Username))
+                if (await IsExist(newUser.Email))
                 {
-                    return new ApiResponse<CreateUserRequest>
+                    return new Response<CreateUserRequest>
                     {
                         Success = false,
                         Message = "This username or email exists.",
@@ -130,28 +131,16 @@ namespace Mommilk88.Services.UserServices
                     };
                 }
 
-                var userEntity = _mapper.Map<User>(newUser);
+                var userEntity = _mapper.Map<Customer>(newUser);
 
-                await _context.Users.AddAsync(userEntity);
-                bool checkAnyUserExists = await IsAnyUserInSystem();
+                await _context.Customers.AddAsync(userEntity);
 
-                var roleCode = newUser.RoleCode != null ? newUser.RoleCode : 300;
-                var role = await _context.Roles.FirstOrDefaultAsync(checkAnyUserExists ? x => x.Code == roleCode : x => x.Code == 100);
-                if (role == null)
-                {
-                    return new ApiResponse<CreateUserRequest>
-                    {
-                        Success = false,
-                        Message = "There aren't any role to create new account.",
-                        Status = (int)HttpStatusCode.OK
-                    };
-                }
+                
 
                 await _context.SaveChangesAsync();
 
-                await RelateRole(role.RoleID, userEntity.UserID);
 
-                return new ApiResponse<CreateUserRequest>
+                return new Response<CreateUserRequest>
                 {
                     Success = true,
                     Message = "Register successfully.",
@@ -159,11 +148,25 @@ namespace Mommilk88.Services.UserServices
                     Status = (int)HttpStatusCode.Created
                 };
             }
-            catch (Exception )
+            catch (Exception)
             {
                 throw;
             }
-        }*/
+        }
+        public async Task<bool> IsExist(string userName)
+        {
+            try
+            {
+                await Task.CompletedTask;
+                bool result = await _context.Customers.FirstOrDefaultAsync(u => u.Email == userName) is not null;
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
     }
 }

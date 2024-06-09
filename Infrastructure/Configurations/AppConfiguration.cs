@@ -1,8 +1,13 @@
 ﻿using Application.Services.Implementations;
 using Application.Services.Interfaces;
 using Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Mommilk88.Services.UserServices;
+using System.Text;
 
 namespace Infrastructure.Configurations
 {
@@ -13,7 +18,7 @@ namespace Infrastructure.Configurations
             services.AddScoped<ICategoryService, CategoryService>();
             //services.AddScoped<IProductService, ProductService>();
             // ...
-
+            services.AddScoped<IUserService, UserService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
         public static void AddSwagger(this IServiceCollection services)
@@ -50,6 +55,38 @@ namespace Infrastructure.Configurations
                  });
             });
         }
+        public static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = configuration["JWT_Configuration:Issuer"],
+                        ValidAudience = configuration["JWT_Configuration:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT_Configuration:SecretKey"]!))
+                    };
+                }).AddJwtBearer("Firebase", options =>
+                {
+                    options.Authority = configuration["Firebase_Configuration:Issuer"];
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = configuration["Firebase_Configuration:Issuer"],
+                        ValidateAudience = true,
+                        ValidAudience = configuration["Firebase_Configuration:Audience"],
+                        ValidateLifetime = true
+                    };
+                });
+        }
+
+
+
 
         //public static void UseJwt(this IApplicationBuilder app)
         //{

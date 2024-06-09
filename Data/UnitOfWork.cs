@@ -18,11 +18,16 @@ namespace Data
         // Getter
         public ICategoryRepository _category = null!;
         //public ICategoryRepository _category = null!;
+        public IOrderRepository _order = null!;
 
         //Setter
         public ICategoryRepository Category
         {
             get { return _category ??= new CategoryRepository(_context); }
+        }
+        public IOrderRepository Order
+        {
+            get { return _order ??= new OrderRepository(_context); }
         }
 
         //public ICategoryRepository Category

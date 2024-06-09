@@ -20,6 +20,14 @@ namespace Application.Mappings
             //.ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.Icon));
 
             CreateMap<CreateUserRequest, Customer>();
+
+            //Order
+            CreateMap<Order, OrderViewModel>();
+            CreateMap<OrderDetail, OrderDetailViewModel>();
+            
+            //Product
+            CreateMap<Product, ProductViewModel>();
+            CreateMap<ProductImage, ProductImageViewModel>();
         }
     }
 }

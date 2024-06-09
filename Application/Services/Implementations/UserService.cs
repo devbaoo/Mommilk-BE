@@ -3,8 +3,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using AutoMapper;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Application.Services.Interfaces;
@@ -12,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Mommilk88.Data;
 using static Domain.Models.Auth.Login;
 using Domain.Models.Auth;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Mommilk88.Services.UserServices
 {
@@ -78,7 +79,7 @@ namespace Mommilk88.Services.UserServices
         public LoginResult GenerateToken(Customer user, List<Claim> claims, DateTime now)
         {
             var shouldAddAudienceClaim = string.IsNullOrWhiteSpace(
-                claims?.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Aud)?.Value
+                claims?.FirstOrDefault(x => x.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Aud)?.Value
             );
 
             var jwtToken = new JwtSecurityToken(
@@ -105,5 +106,64 @@ namespace Mommilk88.Services.UserServices
                 Token = token,
             };
         }
+        /*public async Task<ApiResponse<CreateUserRequest>> Register(CreateUserRequest newUser)
+        {
+            try
+            {
+                if (newUser.Username == null || newUser.Password == null)
+                {
+                    return new ApiResponse<CreateUserRequest>
+                    {
+                        Success = false,
+                        Message = "Invalid username or password!",
+                        Status = (int)HttpStatusCode.OK
+                    };
+                }
+
+                if (await IsExist(newUser.Username))
+                {
+                    return new ApiResponse<CreateUserRequest>
+                    {
+                        Success = false,
+                        Message = "This username or email exists.",
+                        Status = (int)HttpStatusCode.OK
+                    };
+                }
+
+                var userEntity = _mapper.Map<User>(newUser);
+
+                await _context.Users.AddAsync(userEntity);
+                bool checkAnyUserExists = await IsAnyUserInSystem();
+
+                var roleCode = newUser.RoleCode != null ? newUser.RoleCode : 300;
+                var role = await _context.Roles.FirstOrDefaultAsync(checkAnyUserExists ? x => x.Code == roleCode : x => x.Code == 100);
+                if (role == null)
+                {
+                    return new ApiResponse<CreateUserRequest>
+                    {
+                        Success = false,
+                        Message = "There aren't any role to create new account.",
+                        Status = (int)HttpStatusCode.OK
+                    };
+                }
+
+                await _context.SaveChangesAsync();
+
+                await RelateRole(role.RoleID, userEntity.UserID);
+
+                return new ApiResponse<CreateUserRequest>
+                {
+                    Success = true,
+                    Message = "Register successfully.",
+                    Data = newUser,
+                    Status = (int)HttpStatusCode.Created
+                };
+            }
+            catch (Exception )
+            {
+                throw;
+            }
+        }*/
+
     }
 }

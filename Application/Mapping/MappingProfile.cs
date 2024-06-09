@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities;
+using Domain.Models.CreateUserRequest;
 using Domain.Models.Views;
 
 namespace Application.Mappings
@@ -16,7 +17,9 @@ namespace Application.Mappings
 
             // Category
             CreateMap<Category, CategoryViewModel>();
-                //.ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.Icon));
+            //.ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.Icon));
+
+            CreateMap<CreateUserRequest, Customer>();
         }
     }
 }

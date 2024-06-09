@@ -1,6 +1,7 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
 using Domain.Models.Auth;
+using Domain.Models.CreateUserRequest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,20 @@ namespace Mommilk88.Controllers
             try
             {
                 var result = await _userService.Login(request);
+                return StatusCode(result.Status, result);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(CreateUserRequest request)
+        {
+            try
+            {
+                var result = await _userService.Register(request);
                 return StatusCode(result.Status, result);
             }
             catch (Exception ex)

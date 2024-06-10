@@ -58,39 +58,39 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> CreateOrder(OrderCreateModel order)
-        {
-            try
-            {
-                var tempOrder = new Order
-                {
-                    Id = Guid.NewGuid(),
-                    CustomerId = order.CustomerId,
-                    Address = order.Address,
-                    Phone = order.Phone,
-                    Recipient = order.Recipient,
-                    Amount = order.Amount,
-                    PaymentMethod = order.PaymentMethod,
-                    Status = order.Status,
-                    CreateAt = DateTime.Now
-                };
-                _orderRepository.Add(tempOrder);
-                var createdOrder = await _unitOfWork.SaveChangesAsync();
-                if(createdOrder > 0)
-                {
-                    foreach (OrderDetailCreateModel orderDetail in order.OrderDetails) {
-                        _orderDetailRepository.Add(new OrderDetail
-                        {
+        //public async Task<IActionResult> CreateOrder(OrderCreateModel order)
+        //{
+        //    try
+        //    {
+        //        var tempOrder = new Order
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            CustomerId = order.CustomerId,
+        //            Address = order.Address,
+        //            Phone = order.Phone,
+        //            Recipient = order.Recipient,
+        //            Amount = order.Amount,
+        //            PaymentMethod = order.PaymentMethod,
+        //            Status = order.Status,
+        //            CreateAt = DateTime.Now
+        //        };
+        //        _orderRepository.Add(tempOrder);
+        //        var createdOrder = await _unitOfWork.SaveChangesAsync();
+        //        if(createdOrder > 0)
+        //        {
+        //            foreach (OrderDetailCreateModel orderDetail in order.OrderDetails) {
+        //                _orderDetailRepository.Add(new OrderDetail
+        //                {
                             
-                        }
-                        );
-                    }
-                }                
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        //                }
+        //                );
+        //            }
+        //        }                
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
     }
 }

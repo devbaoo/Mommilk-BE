@@ -18,8 +18,11 @@ namespace Infrastructure.Configurations
             services.AddScoped<ICategoryService, CategoryService>();
             //services.AddScoped<IProductService, ProductService>();
             // ...
+            services.AddScoped<IOrderService, OrderService>();
+
             services.AddScoped<IUserService, UserService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            
         }
         public static void AddSwagger(this IServiceCollection services)
         {

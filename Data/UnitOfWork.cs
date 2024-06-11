@@ -17,12 +17,17 @@ namespace Data
 
         // Getter
         public ICategoryRepository _category = null!;
-        //public ICategoryRepository _category = null!;
+        public IProductRepository _product = null!;
 
         //Setter
         public ICategoryRepository Category
         {
             get { return _category ??= new CategoryRepository(_context); }
+        }
+
+        public IProductRepository Product
+        {
+            get { return _product ??= new ProductRepository(_context); }
         }
 
         //public ICategoryRepository Category

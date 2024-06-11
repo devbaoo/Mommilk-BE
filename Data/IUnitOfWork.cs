@@ -6,6 +6,8 @@ namespace Data
     {
         public ICategoryRepository Category { get; }
 
+        public IProductRepository Product { get; }
+
         void BeginTransaction();
         void Commit();
         void Rollback();

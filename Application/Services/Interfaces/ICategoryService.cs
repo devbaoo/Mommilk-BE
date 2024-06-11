@@ -10,7 +10,7 @@ namespace Application.Services.Interfaces
     {
         Task<IActionResult> GetCategories(CategoryFilterModel filter, PaginationRequestModel pagination);
         Task<IActionResult> GetCategory(Guid id);
-        Task<IActionResult> CreateCategory(CategoryCreateModel model);
+        Task<IActionResult> CreateCategory(CategoryCreateModel model);  
         Task<IActionResult> UpdateCategory(Guid id, CategoryUpdateModel model);
     }
 }

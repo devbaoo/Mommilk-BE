@@ -18,6 +18,7 @@ namespace Application.Mappings
             // Category
             CreateMap<Category, CategoryViewModel>();
             //.ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.Icon));
+            CreateMap<Product, ProductViewModel>();
 
             CreateMap<CreateUserRequest, Customer>();
         }

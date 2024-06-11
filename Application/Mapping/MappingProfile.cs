@@ -21,6 +21,14 @@ namespace Application.Mappings
             CreateMap<Product, ProductViewModel>();
 
             CreateMap<CreateUserRequest, Customer>();
+
+            //Order
+            CreateMap<Order, OrderViewModel>();
+            CreateMap<OrderDetail, OrderDetailViewModel>();
+            
+            //Product
+            CreateMap<Product, ProductViewModel>();
+            CreateMap<ProductImage, ProductImageViewModel>();
         }
     }
 }

@@ -11,7 +11,8 @@
 MilkForMomAndBabies là một nền tảng thương mại điện tử chuyên cung cấp các sản phẩm sữa cho mẹ bầu và em bé. Nền tảng của tụi mình giúp người dùng dễ dàng tìm kiếm, so sánh và mua các loại sữa phù hợp với nhu cầu.
 
 ## Document:
-https://docs.google.com/document/d/1CAJtbUC1eurAHFmCMFc8Ab8NJFtT9-Zb/edit
+https://docs.google.com/document/d/1ibByng0s_AW_yHufn1ctLzduIoZnLjtS/edit?usp=sharing&ouid=110360738031562445105&rtpof=true&sd=true
+https://docs.google.com/document/d/1q2eybM_KbsGiQFr4OZnLZo6mMmLw_HZv/edit?usp=sharing&ouid=110360738031562445105&rtpof=true&sd=true
 
 ## Tính năng chính
 - **Tìm kiếm sản phẩm**: Người dùng có thể dễ dàng tìm kiếm các sản phẩm sữa theo nhu cầu.

@@ -36,7 +36,7 @@ namespace Mommilk88.Services.UserServices
             try
             {
                 await Task.CompletedTask;
-                var user = await _context.Customers.FirstOrDefaultAsync(x => x.Email == request.Username && x.Password == request.Password);
+                var user = await _context.Customers.FirstOrDefaultAsync(x => x.Email == request.Email && x.Password == request.Password);
 
                 if (user == null)
                 {
@@ -51,7 +51,7 @@ namespace Mommilk88.Services.UserServices
                 var claims = new List<Claim>
                 {
                     new Claim("UserID", user.Id.ToString()),
-                    new Claim("Fullname", user.Name),
+                    new Claim("Name", user.Name),
                 };
 
                 var result = GenerateToken(user, claims, DateTime.Now);
@@ -59,7 +59,7 @@ namespace Mommilk88.Services.UserServices
                 {
                     UserID = user.Id,
                     Username = user.Email,
-                    Fullname = user.Name,
+                    Name = user.Name,
                     Phone = "0" + user.Phone.ToString(),
                     
 

@@ -99,6 +99,10 @@ namespace Application.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     Name = model.Name,
+                    TargetAudience = model.TargetAudience,
+                    AgeRange = model.AgeRange,
+                    MilkType = model.MilkType,
+                    Icon = model.Icon,
                 };
                 _categoryRepository.Add(category);
                 var result = await _unitOfWork.SaveChangesAsync();

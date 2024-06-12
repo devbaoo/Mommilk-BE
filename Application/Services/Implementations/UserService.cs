@@ -61,6 +61,8 @@ namespace Mommilk88.Services.UserServices
                     Username = user.Email,
                     Fullname = user.Name,
                     Phone = "0" + user.Phone.ToString(),
+                    
+
                 };
 
                 return new Response<LoginResult>

@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Application.Services.Interfaces
 {
-    public interface IProductService
+    public interface IProductCateService
     {
-        Task<IActionResult> GetProducts(ProductFilterModel filter, PaginationRequestModel pagination);
+        Task<IActionResult> GetProductCate(ProductCateFilterModel filter, PaginationRequestModel pagination);
 
-        Task<IActionResult> CreateProduct(ProductCreateModel model);
+        Task<IActionResult> CreateProductCate(ProductCateCreateModel model);
     }
 }

@@ -39,7 +39,7 @@ namespace Application.Services.Implementations
 
                 if (filter.AgeRange != null)
                 {
-                    query = query.Where(x => x.AgeRange.Contains(filter.AgeRange));
+                    query = query.Where(x => x.AgeRange.Equals(filter.AgeRange));
                 }
 
                 if (filter.TargetAudience != null)
@@ -108,10 +108,10 @@ namespace Application.Services.Implementations
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)
                 {
-                    category.Ok();
+                     AppErrors.CREATE_FAIL.BadRequest();
                 }
 
-                return AppErrors.CREATE_FAIL.BadRequest();
+                return category.Ok();
             }
             catch (Exception)
             {
@@ -136,6 +136,27 @@ namespace Application.Services.Implementations
 
                     category.Name = model.Name;
                 }
+                if (model.TargetAudience != null)
+                {
+
+                    category.TargetAudience = model.TargetAudience;
+                }
+                if (model.AgeRange != null)
+                {
+
+                    category.AgeRange = model.AgeRange;
+                }
+                if (model.MilkType != null)
+                {
+
+                    category.MilkType = model.MilkType;
+                }
+                if (model.Icon != null)
+                {
+
+                    category.Icon = model.Icon;
+                }
+
                 _categoryRepository.Update(category);
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)

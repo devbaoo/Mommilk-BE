@@ -7,11 +7,11 @@ namespace Domain.Entities;
 
 public partial class MembershipTransaction
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    public Guid MembershipId { get; set; }
+    public int? MembershipId { get; set; }
 
-    public Guid StoreOwnerId { get; set; }
+    public Guid? StoreOwnerId { get; set; }
 
     public string Status { get; set; }
 
@@ -19,5 +19,5 @@ public partial class MembershipTransaction
 
     public virtual Membership Membership { get; set; }
 
-    public virtual StoreOwner StoreOwner { get; set; }
+    public virtual User StoreOwner { get; set; }
 }

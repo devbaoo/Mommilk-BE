@@ -7,11 +7,11 @@ namespace Domain.Entities;
 
 public partial class ProductImage
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Url { get; set; }
 
-    public Guid ProductId { get; set; }
+    public int? ProductId { get; set; }
 
     public bool IsPrimary { get; set; }
 

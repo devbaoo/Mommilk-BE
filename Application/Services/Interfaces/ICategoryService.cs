@@ -9,8 +9,8 @@ namespace Application.Services.Interfaces
     public interface ICategoryService
     {
         Task<IActionResult> GetCategories(CategoryFilterModel filter, PaginationRequestModel pagination);
-        Task<IActionResult> GetCategory(Guid id);
+        Task<IActionResult> GetCategory(int id);
         Task<IActionResult> CreateCategory(CategoryCreateModel model);
-        Task<IActionResult> UpdateCategory(Guid id, CategoryUpdateModel model);
+        Task<IActionResult> UpdateCategory(int id, CategoryUpdateModel model);
     }
 }

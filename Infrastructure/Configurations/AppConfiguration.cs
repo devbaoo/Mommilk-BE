@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Mommilk88.Services.UserServices;
+using SuaMe88.Services.UserServices;
 using System.Text;
 
 namespace Infrastructure.Configurations
@@ -17,10 +17,9 @@ namespace Infrastructure.Configurations
         {
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<IProductCateService, ProductCateService>();
             // ...
             services.AddScoped<IOrderService, OrderService>();
-
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             

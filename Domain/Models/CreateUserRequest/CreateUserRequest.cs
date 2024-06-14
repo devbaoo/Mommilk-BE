@@ -16,6 +16,7 @@ namespace Domain.Models.CreateUserRequest
         public string Password { get; set; }
         public string Phone { get; set; }
         
+
 /*        public string AvatarUrl { get; set; }
         public string Rank { get; set; }*/
 /*        public bool? Status { get; set; } = true;

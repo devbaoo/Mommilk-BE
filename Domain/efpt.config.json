@@ -15,15 +15,7 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[dbo].[Admin]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Category]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Customer]",
          "ObjectType": 0
       },
       {
@@ -63,15 +55,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Role]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Store]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[StoreOwner]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[StoreOwnerMembership]",
+         "Name": "[dbo].[User]",
          "ObjectType": 0
       }
    ],

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Domain.Entities;
 
-public partial class StoreOwner
+public partial class User
 {
     public Guid Id { get; set; }
 
@@ -19,13 +19,23 @@ public partial class StoreOwner
 
     public string AvatarUrl { get; set; }
 
-    public Guid? StoreId { get; set; }
+    public int? StoreId { get; set; }
 
-    public string Status { get; set; }
+    public string Rank { get; set; }
+
+    public int? RoleId { get; set; }
+
+    public bool Status { get; set; }
+
+    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual ICollection<MembershipTransaction> MembershipTransactions { get; set; } = new List<MembershipTransaction>();
 
-    public virtual Store Store { get; set; }
+    public virtual ICollection<OrderTransaction> OrderTransactions { get; set; } = new List<OrderTransaction>();
 
-    public virtual ICollection<StoreOwnerMembership> StoreOwnerMemberships { get; set; } = new List<StoreOwnerMembership>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual Role Role { get; set; }
+
+    public virtual Store Store { get; set; }
 }

@@ -8,14 +8,6 @@ namespace Domain.Models.Updates
 {
     public class CategoryUpdateModel
     {
-        public string Name { get; set; } = null!;
-
-        public string TargetAudience { get; set; } = null!;
-
-        public string AgeRange { get; set; } = null!;
-
-        public string MilkType { get; set; } = null!;
-
-        public string? Icon { get; set; }
+        public string? Name { get; set; }
     }
 }

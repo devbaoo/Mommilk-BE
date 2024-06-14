@@ -9,7 +9,7 @@ public partial class Order
 {
     public Guid Id { get; set; }
 
-    public Guid CustomerId { get; set; }
+    public Guid? CustomerId { get; set; }
 
     public string Address { get; set; }
 
@@ -23,11 +23,9 @@ public partial class Order
 
     public string Status { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime? DeliveryDate { get; set; }
 
-    public virtual Customer Customer { get; set; }
-
-    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+    public virtual User Customer { get; set; }
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 

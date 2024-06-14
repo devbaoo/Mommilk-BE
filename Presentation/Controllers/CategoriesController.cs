@@ -34,7 +34,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetCategory([FromRoute] Guid id)
+        public async Task<IActionResult> GetCategory([FromRoute] int id)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryUpdateModel model)
+        public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] CategoryUpdateModel model)
         {
             try
             {

@@ -16,6 +16,7 @@ builder.Services.AddDbContext<SuaMe88Context>(options =>
         options.UseSqlServer(sqlConnectionString));
 builder.Services.AddControllers();
 
+
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>
     {
@@ -53,7 +54,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 //app.UseJwt();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

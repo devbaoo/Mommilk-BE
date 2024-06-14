@@ -8,8 +8,8 @@ namespace Domain.Models.Creates
 {
     public class CategoryCreateModel
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+/*        public int Id { get; set; }
+*/        public string Name { get; set; } = null!;
 
         public string TargetAudience { get; set; } = null!;
 

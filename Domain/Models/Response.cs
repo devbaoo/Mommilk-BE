@@ -1,4 +1,4 @@
-﻿namespace Mommilk88.Data
+﻿namespace SuaMe88.Data
 {
     public class Response<T>
     {

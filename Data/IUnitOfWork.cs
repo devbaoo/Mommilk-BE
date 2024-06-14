@@ -9,7 +9,6 @@ namespace Data
         public IProductRepository Product { get; }
         public IOrderDetailRepository OrderDetail { get; }
 
-        public IProductCateRepository ProductCate { get; }
         void BeginTransaction();
         void Commit();
         void Rollback();

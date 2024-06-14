@@ -7,7 +7,7 @@ namespace Domain.Entities;
 
 public partial class Product
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; }
 
@@ -33,11 +33,13 @@ public partial class Product
 
     public DateTime ExpireAt { get; set; }
 
-    public Guid StoreId { get; set; }
+    public int? StoreId { get; set; }
 
     public DateTime CreateAt { get; set; }
 
     public string Status { get; set; }
+
+    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 

@@ -9,7 +9,7 @@ namespace Domain.Models.Views
 {
     public class ProductImageViewModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string Url { get; set; } = null!;
 

@@ -7,11 +7,11 @@ namespace Domain.Entities;
 
 public partial class Feedback
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    public Guid CustomerId { get; set; }
+    public Guid? CustomerId { get; set; }
 
-    public Guid OrderId { get; set; }
+    public int? ProductId { get; set; }
 
     public string Content { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Feedback
 
     public DateTime CreateAt { get; set; }
 
-    public virtual Customer Customer { get; set; }
+    public virtual User Customer { get; set; }
 
-    public virtual Order Order { get; set; }
+    public virtual Product Product { get; set; }
 }

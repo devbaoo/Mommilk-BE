@@ -39,7 +39,7 @@ namespace Application.Services.Implementations
 
                 if (filter.AgeRange != null)
                 {
-                    query = query.Where(x => x.AgeRange.Equals(filter.AgeRange));
+                    query = query.Where(x => x.AgeRange.Contains(filter.AgeRange));
                 }
 
                 if (filter.TargetAudience != null)
@@ -69,7 +69,7 @@ namespace Application.Services.Implementations
         }
 
         // Lay by Id
-        public async Task<IActionResult> GetCategory(Guid id)
+        public async Task<IActionResult> GetCategory(int id)
         {
             try
             {
@@ -97,7 +97,6 @@ namespace Application.Services.Implementations
             {
                 var category = new Category
                 {
-                    Id = Guid.NewGuid(),
                     Name = model.Name,
                     TargetAudience = model.TargetAudience,
                     AgeRange = model.AgeRange,
@@ -108,10 +107,10 @@ namespace Application.Services.Implementations
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)
                 {
-                     AppErrors.CREATE_FAIL.BadRequest();
+                    category.Ok();
                 }
 
-                return category.Ok();
+                return AppErrors.CREATE_FAIL.BadRequest();
             }
             catch (Exception)
             {
@@ -120,7 +119,7 @@ namespace Application.Services.Implementations
         }
 
         // Cap Nhat Cate
-        public async Task<IActionResult> UpdateCategory(Guid id, CategoryUpdateModel model)
+        public async Task<IActionResult> UpdateCategory(int id, CategoryUpdateModel model)
         {
             try
             {
@@ -136,27 +135,6 @@ namespace Application.Services.Implementations
 
                     category.Name = model.Name;
                 }
-                if (model.TargetAudience != null)
-                {
-
-                    category.TargetAudience = model.TargetAudience;
-                }
-                if (model.AgeRange != null)
-                {
-
-                    category.AgeRange = model.AgeRange;
-                }
-                if (model.MilkType != null)
-                {
-
-                    category.MilkType = model.MilkType;
-                }
-                if (model.Icon != null)
-                {
-
-                    category.Icon = model.Icon;
-                }
-
                 _categoryRepository.Update(category);
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)

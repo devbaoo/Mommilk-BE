@@ -40,15 +40,15 @@ namespace Application.Services.Implementations
             try
             {
                 var query = _orderRepository.GetAll();
-                if (filter.CreateAt != null)
+                if (filter.DeliveryDate != null)
                 {
                     query = query
-                        .Where(x => x.CreateAt.Date == filter.CreateAt.Value.Date);
+                    .Where(x => x.DeliveryDate.HasValue && x.DeliveryDate.Value.Date == filter.DeliveryDate.Value.Date);
                 }
                 var list = await query
                     .Paginate(pagination)
                     .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
-                    .OrderByDescending(x => x.CreateAt)
+                    .OrderByDescending(x => x.DeliveryDate)
                     .ToListAsync();
                 return list.Ok();
             }

@@ -9,9 +9,9 @@ namespace Domain.Models.Views
 {
     public class OrderDetailViewModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
-        public double Price { get; set; }
+        public Double Price { get; set; }
 
         public int Quantity { get; set; }
 

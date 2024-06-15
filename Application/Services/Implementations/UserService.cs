@@ -178,14 +178,15 @@ namespace SuaMe88.Services.UserServices
                     Status = (int)HttpStatusCode.OK
                 };
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return new Response<string>
+                throw;
+               /* return new Response<string>
                 {
                     Success = false,
                     Message = "User service - ChangePassword: " + ex.Message,
                     Status = (int)HttpStatusCode.InternalServerError
-                };
+                };*/
             }
         }
 
@@ -219,14 +220,15 @@ namespace SuaMe88.Services.UserServices
                     Status = (int)HttpStatusCode.OK
                 };
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return new Response<UserProfile>
+                throw;
+/*                return new Response<UserProfile>
                 {
                     Success = false,
                     Message = "UserService - GetProfile: " + ex,
                     Status = (int)HttpStatusCode.InternalServerError
-                };
+                };*/
             }
         }
         public async Task<Response<List<UserProfile>>> GetUsers(FilterUser? filter)
@@ -263,14 +265,15 @@ namespace SuaMe88.Services.UserServices
                     Status = (int)HttpStatusCode.OK
                 };
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return new Response<List<UserProfile>>
+                throw;
+                /*return new Response<List<UserProfile>>
                 {
                     Success = false,
                     Message = "UserService - GetUsers: " + ex,
                     Status = (int)HttpStatusCode.InternalServerError
-                };
+                };*/
             }
         }
 
@@ -305,14 +308,15 @@ namespace SuaMe88.Services.UserServices
                     Status = (int)HttpStatusCode.OK
                 };
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return new Response<UpdateUserRequest>
+                throw;
+                /*return new Response<UpdateUserRequest>
                 {
                     Success = false,
                     Message = "UserService - UpdateUser: " + ex,
                     Status = (int)HttpStatusCode.InternalServerError
-                };
+                };*/
             }
         }
 

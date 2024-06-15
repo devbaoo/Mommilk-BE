@@ -22,6 +22,8 @@ namespace Data
         public IProductRepository _product = null!;
         public IOrderDetailRepository _orderDetail = null!;
 
+        public IProductCategoryRepository _productCategory = null!;
+
         //Setter
         public ICategoryRepository Category
         {
@@ -39,7 +41,10 @@ namespace Data
         {
             get { return _orderDetail ??= new OrderDetailRepository(_context); }
         }
-
+        public IProductCategoryRepository ProductCategory
+        {
+            get { return _productCategory ??= new ProductCategoryRepository(_context); }
+        }
         //public ICategoryRepository Category
         //{
         //    get { return _category ??= new CategoryRepository(_context); }

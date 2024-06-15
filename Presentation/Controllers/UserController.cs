@@ -27,34 +27,61 @@ namespace Mommilk88.Controllers
 
         public async Task<IActionResult> GetProfile()
         {
-            var userAuthID = User.FindFirstValue("UserID");
-            if (userAuthID == null)
+            try
             {
-                return Unauthorized();
+                var userAuthID = User.FindFirstValue("UserID");
+                if (userAuthID == null)
+                {
+                    return Unauthorized();
+                }
+                var result = await _userService.GetProfile(Guid.Parse(userAuthID));
+                return StatusCode(result.Status, result);
+
+            } catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
             }
-            var result = await _userService.GetProfile(Guid.Parse(userAuthID));
-            return StatusCode(result.Status, result);
         }
         [HttpGet("user-by-id/{userID}")]
         public async Task<IActionResult> GetUserByID(Guid userID)
         {
-            var result = await _userService.GetProfile(userID);
-            return StatusCode(result.Status, result);
+            try
+            {
+                var result = await _userService.GetProfile(userID);
+                return StatusCode(result.Status, result);
+            } 
+            catch (Exception ex) {
+                return ex.Message.InternalServerError();
+            }
         }
 
         [HttpGet("users")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUsers([FromQuery] FilterUser? filterObject)
         {
-            var result = await _userService.GetUsers(filterObject);
-            return StatusCode(result.Status, result);
+            try
+            {
+                var result = await _userService.GetUsers(filterObject);
+                return StatusCode(result.Status, result);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
         }
 
         [HttpPut("update-user/{UserID}")]
         public async Task<IActionResult> UpdateUser(Guid UserID, UpdateUserRequest request)
         {
-            var result = await _userService.UpdateUser(UserID, request);
-            return StatusCode(result.Status, result);
+            try
+            {
+                var result = await _userService.UpdateUser(UserID, request);
+                return StatusCode(result.Status, result);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
         }
 
 /*        [HttpDelete("delete-user/{UserID}")]

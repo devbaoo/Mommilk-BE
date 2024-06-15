@@ -19,7 +19,7 @@ namespace Application.Mappings
             // Category
             CreateMap<Category, CategoryViewModel>();
             //.ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.Icon));
-
+            //user
             CreateMap<CreateUserRequest, User>();
             CreateMap<User, UserProfile>();
             CreateMap<UserProfile, User>();

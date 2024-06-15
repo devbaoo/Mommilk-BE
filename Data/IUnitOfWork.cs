@@ -8,7 +8,7 @@ namespace Data
         public IOrderRepository Order { get; }
         public IProductRepository Product { get; }
         public IOrderDetailRepository OrderDetail { get; }
-
+        public IProductCategoryRepository ProductCategory { get; }
         void BeginTransaction();
         void Commit();
         void Rollback();

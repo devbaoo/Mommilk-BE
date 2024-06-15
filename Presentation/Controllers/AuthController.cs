@@ -54,15 +54,22 @@ namespace Mommilk88.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
         {
-
-            var change = User.FindFirstValue("UserID");
-            if (change == null)
+            
+            try
             {
-                return Unauthorized();
-            }
+                var change = User.FindFirstValue("UserID");
+                if (change == null)
+                {
+                    return Unauthorized();
+                }
 
-            var result = await _userService.ChangePassword(Guid.Parse(change), request);
-            return StatusCode(result.Status, result);
+                var result = await _userService.ChangePassword(Guid.Parse(change), request);
+                return StatusCode(result.Status, result);
+            } 
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Application.Services.Implementations;
 using Application.Services.Interfaces;
 using Common.Extensions;
+using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
+using Domain.Models.Updates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +30,33 @@ namespace Presentation.Controllers
             catch (Exception ex)
             {
                 return  ex.Message.InternalServerError();   
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateModel model)
+        {
+            try
+            {
+                return await _productService.CreateProduct(model);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductUpdateModel model)
+        {
+            try
+            {
+                return await _productService.UpdateProduct(id, model);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
             }
         }
     }

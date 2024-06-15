@@ -5,15 +5,11 @@ using System.Collections.Generic;
 
 namespace Domain.Entities;
 
-public partial class Admin
+public partial class Role
 {
-    public Guid Id { get; set; }
-
-    public string Email { get; set; }
-
-    public string Password { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; }
 
-    public string AvatarUrl { get; set; }
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

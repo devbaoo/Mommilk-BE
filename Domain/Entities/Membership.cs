@@ -7,19 +7,19 @@ namespace Domain.Entities;
 
 public partial class Membership
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Title { get; set; }
 
     public string Description { get; set; }
 
-    public double Price { get; set; }
+    public decimal Price { get; set; }
 
     public DateTime StartDate { get; set; }
 
     public DateTime ExpireDate { get; set; }
 
-    public virtual ICollection<MembershipTransaction> MembershipTransactions { get; set; } = new List<MembershipTransaction>();
+    public string Status { get; set; }
 
-    public virtual ICollection<StoreOwnerMembership> StoreOwnerMemberships { get; set; } = new List<StoreOwnerMembership>();
+    public virtual ICollection<MembershipTransaction> MembershipTransactions { get; set; } = new List<MembershipTransaction>();
 }

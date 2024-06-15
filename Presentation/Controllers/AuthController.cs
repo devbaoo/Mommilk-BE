@@ -5,16 +5,17 @@ using Domain.Models.CreateUserRequest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Mommilk88.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
 
-        public AccountsController(IUserService userService)
+        public AuthController(IUserService userService)
         {
             _userService = userService;
         }
@@ -42,6 +43,29 @@ namespace Mommilk88.Controllers
                 var result = await _userService.Register(request);
                 return StatusCode(result.Status, result);
             }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+
+        [HttpPut("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        {
+            
+            try
+            {
+                var change = User.FindFirstValue("UserID");
+                if (change == null)
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _userService.ChangePassword(Guid.Parse(change), request);
+                return StatusCode(result.Status, result);
+            } 
             catch (Exception ex)
             {
                 return ex.Message.InternalServerError();

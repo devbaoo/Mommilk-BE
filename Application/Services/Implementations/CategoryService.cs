@@ -69,7 +69,7 @@ namespace Application.Services.Implementations
         }
 
         // Lay by Id
-        public async Task<IActionResult> GetCategory(Guid id)
+        public async Task<IActionResult> GetCategory(int id)
         {
             try
             {
@@ -97,7 +97,6 @@ namespace Application.Services.Implementations
             {
                 var category = new Category
                 {
-                    Id = Guid.NewGuid(),
                     Name = model.Name,
                     TargetAudience = model.TargetAudience,
                     AgeRange = model.AgeRange,
@@ -120,7 +119,7 @@ namespace Application.Services.Implementations
         }
 
         // Cap Nhat Cate
-        public async Task<IActionResult> UpdateCategory(Guid id, CategoryUpdateModel model)
+        public async Task<IActionResult> UpdateCategory(int id, CategoryUpdateModel model)
         {
             try
             {

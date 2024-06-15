@@ -7,7 +7,7 @@ namespace Domain.Entities;
 
 public partial class Store
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; }
 
@@ -19,5 +19,5 @@ public partial class Store
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 
-    public virtual StoreOwner StoreOwner { get; set; }
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

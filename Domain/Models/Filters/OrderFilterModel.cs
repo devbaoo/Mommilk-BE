@@ -4,6 +4,6 @@
     {
         public Guid? Id { get; set; }
         public Guid? CustomerId { get; set; }
-        public DateTime? CreateAt { get; set; }
+        public DateTime? DeliveryDate { get; set; }
     }
 }

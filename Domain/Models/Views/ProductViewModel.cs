@@ -9,7 +9,7 @@ namespace Domain.Models.Views
 {
     public class ProductViewModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; } = null!;
 
@@ -26,7 +26,7 @@ namespace Domain.Models.Views
         public string? Sample { get; set; }
 
         public string? Capacity { get; set; }
-
+            
         public string Description { get; set; } = null!;
 
         public double Price { get; set; }

@@ -22,7 +22,8 @@ namespace Domain.Models.Views
 
         public string Status { get; set; } = null!;
 
-        public DateTime CreateAt { get; set; }
+        public DateTime DeliveryDate { get; set; }
+        //public DateTime CreateAt { get; set; }
 
         public ICollection<OrderDetailViewModel> OrderDetails { get; set; } = new List<OrderDetailViewModel>();
     }

@@ -13,11 +13,7 @@ public partial class SuaMe88Context : DbContext
     {
     }
 
-    public virtual DbSet<Admin> Admins { get; set; }
-
     public virtual DbSet<Category> Categories { get; set; }
-
-    public virtual DbSet<Customer> Customers { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
@@ -37,41 +33,20 @@ public partial class SuaMe88Context : DbContext
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<Store> Stores { get; set; }
 
-    public virtual DbSet<StoreOwner> StoreOwners { get; set; }
-
-    public virtual DbSet<StoreOwnerMembership> StoreOwnerMemberships { get; set; }
+    public virtual DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Admin>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Admin__3214EC07D3C191F4");
-
-            entity.ToTable("Admin");
-
-            entity.HasIndex(e => e.Email, "UQ__Admin__A9D10534D8AE57BB").IsUnique();
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(256);
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(256);
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(256);
-        });
-
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC078B423746");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC077AEE05F1");
 
             entity.ToTable("Category");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.AgeRange)
                 .IsRequired()
                 .HasMaxLength(256);
@@ -86,42 +61,12 @@ public partial class SuaMe88Context : DbContext
                 .HasMaxLength(256);
         });
 
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC07AF0080BA");
-
-            entity.ToTable("Customer");
-
-            entity.HasIndex(e => e.Email, "UQ__Customer__A9D105342B81DA94").IsUnique();
-
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(256);
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(256);
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(256);
-            entity.Property(e => e.Phone).HasMaxLength(256);
-            entity.Property(e => e.Rank)
-                .IsRequired()
-                .HasMaxLength(256)
-                .HasDefaultValue("iron");
-            entity.Property(e => e.Status)
-                .IsRequired()
-                .HasMaxLength(256)
-                .HasDefaultValue("True");
-        });
-
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC075931BE39");
+            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC07C7732EF7");
 
             entity.ToTable("Feedback");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
@@ -129,27 +74,28 @@ public partial class SuaMe88Context : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__Custom__10566F31");
+                .HasConstraintName("FK_Feedback_User");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.Feedbacks)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__OrderI__114A936A");
+            entity.HasOne(d => d.Product).WithMany(p => p.Feedbacks)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK_Feedback_Product");
         });
 
         modelBuilder.Entity<Membership>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC07134D6F8E");
+            entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC0735D7F1D6");
 
             entity.ToTable("Membership");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Description)
                 .IsRequired()
                 .HasMaxLength(256);
             entity.Property(e => e.ExpireDate).HasColumnType("datetime");
+            entity.Property(e => e.Price).HasColumnType("money");
             entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(10);
             entity.Property(e => e.Title)
                 .IsRequired()
                 .HasMaxLength(256);
@@ -157,11 +103,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<MembershipTransaction>(entity =>
         {
-            entity.HasKey(e => new { e.MembershipId, e.StoreOwnerId }).HasName("PK__Membersh__02D6D01E7DA0FEBB");
+            entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC0781E46966");
 
             entity.ToTable("MembershipTransaction");
-
-            entity.HasIndex(e => e.Id, "UQ__Membersh__3214EC06414A5EBD").IsUnique();
 
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
@@ -172,28 +116,23 @@ public partial class SuaMe88Context : DbContext
 
             entity.HasOne(d => d.Membership).WithMany(p => p.MembershipTransactions)
                 .HasForeignKey(d => d.MembershipId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Membershi__Membe__0B91BA14");
+                .HasConstraintName("FK_MembershipTransaction_Membership");
 
             entity.HasOne(d => d.StoreOwner).WithMany(p => p.MembershipTransactions)
                 .HasForeignKey(d => d.StoreOwnerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Membershi__Store__0C85DE4D");
+                .HasConstraintName("FK_MembershipTransaction_User");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07A07673F2");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07701E5DF3");
 
             entity.ToTable("Order");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Address).HasMaxLength(256);
-            entity.Property(e => e.CreateAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.DeliveryDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod).HasMaxLength(256);
-            entity.Property(e => e.Phone).HasMaxLength(256);
+            entity.Property(e => e.Phone).HasMaxLength(15);
             entity.Property(e => e.Recipient).HasMaxLength(256);
             entity.Property(e => e.Status)
                 .IsRequired()
@@ -201,36 +140,32 @@ public partial class SuaMe88Context : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Order__CustomerI__2FCF1A8A");
+                .HasConstraintName("FK_Order_User");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC07E7A2CEF0");
+            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC073A49B93B");
 
             entity.ToTable("OrderDetail");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Price).HasColumnType("money");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__Order__30C33EC3");
+                .HasConstraintName("FK_OrderDetail_Order");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__Produ__31B762FC");
+                .HasConstraintName("FK_OrderDetail_Product");
         });
 
         modelBuilder.Entity<OrderTransaction>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderTra__3214EC07D947296D");
+            entity.HasKey(e => e.Id).HasName("PK__OrderTra__3214EC0703EB4EB8");
 
             entity.ToTable("OrderTransaction");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -240,22 +175,19 @@ public partial class SuaMe88Context : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.OrderTransactions)
                 .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderTran__Custo__32AB8735");
+                .HasConstraintName("FK_OrderTransaction_User");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderTransactions)
                 .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderTran__Order__00200768");
+                .HasConstraintName("FK_OrderTransaction_Order");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Product__3214EC0716D0315F");
+            entity.HasKey(e => e.Id).HasName("PK__Product__3214EC078F38BE07");
 
             entity.ToTable("Product");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Brand)
                 .IsRequired()
                 .HasMaxLength(256);
@@ -281,71 +213,70 @@ public partial class SuaMe88Context : DbContext
 
             entity.HasOne(d => d.Store).WithMany(p => p.Products)
                 .HasForeignKey(d => d.StoreId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Product__StoreId__3493CFA7");
+                .HasConstraintName("FK_Product_Store");
         });
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {
-            entity.HasKey(e => new { e.CategoryId, e.ProductId }).HasName("PK__ProductC__D249F66708B39296");
+            entity.HasKey(e => e.Id).HasName("PK__ProductC__3214EC070946694F");
 
             entity.ToTable("ProductCategory");
 
-            entity.HasIndex(e => e.Id, "UQ__ProductC__3214EC0679D48DAA").IsUnique();
-
             entity.HasOne(d => d.Category).WithMany(p => p.ProductCategories)
                 .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductCa__Categ__3587F3E0");
+                .HasConstraintName("FK_ProductCategory_Category");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductCategories)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductCa__Produ__367C1819");
+                .HasConstraintName("FK_ProductCategory_Product");
         });
 
         modelBuilder.Entity<ProductImage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ProductI__3214EC0744340A47");
+            entity.HasKey(e => e.Id).HasName("PK__ProductI__3214EC074B19E46C");
 
             entity.ToTable("ProductImage");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Url).IsRequired();
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductIm__Produ__37703C52");
+                .HasConstraintName("FK_ProductImage_Product");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07EABEF56E");
+
+            entity.ToTable("Role");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Store>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Store__3214EC0719387753");
+            entity.HasKey(e => e.Id).HasName("PK__Store__3214EC07404944E7");
 
             entity.ToTable("Store");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Address)
-                .IsRequired()
-                .HasMaxLength(256);
+            entity.Property(e => e.Address).IsRequired();
             entity.Property(e => e.Description).IsRequired();
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(256);
         });
 
-        modelBuilder.Entity<StoreOwner>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__StoreOwn__3214EC07853AB5DB");
+            entity.HasKey(e => e.Id).HasName("PK__User__3214EC07ADCB51FC");
 
-            entity.ToTable("StoreOwner");
+            entity.ToTable("User");
 
-            entity.HasIndex(e => e.StoreId, "UQ__StoreOwn__3B82F100A5127CC3").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__User__A9D1053440CF85C3").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__StoreOwn__A9D10534505B3E48").IsUnique();
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(256);
@@ -356,37 +287,19 @@ public partial class SuaMe88Context : DbContext
                 .IsRequired()
                 .HasMaxLength(256);
             entity.Property(e => e.Phone).HasMaxLength(256);
-            entity.Property(e => e.Status)
+            entity.Property(e => e.Rank)
                 .IsRequired()
-                .HasMaxLength(256);
+                .HasMaxLength(256)
+                .HasDefaultValue("iron");
+            entity.Property(e => e.Status).HasDefaultValue(true);
 
-            entity.HasOne(d => d.Store).WithOne(p => p.StoreOwner)
-                .HasForeignKey<StoreOwner>(d => d.StoreId)
-                .HasConstraintName("FK__StoreOwne__Store__3864608B");
-        });
+            entity.HasOne(d => d.Role).WithMany(p => p.Users)
+                .HasForeignKey(d => d.RoleId)
+                .HasConstraintName("FK_User_Role");
 
-        modelBuilder.Entity<StoreOwnerMembership>(entity =>
-        {
-            entity.HasKey(e => new { e.StoreOwnerId, e.MembershipId }).HasName("PK__StoreOwn__8E3F1E1FFC007321");
-
-            entity.ToTable("StoreOwnerMembership");
-
-            entity.HasIndex(e => e.Id, "UQ__StoreOwn__3214EC06BA4BEB37").IsUnique();
-
-            entity.Property(e => e.CreateAt).HasColumnType("datetime");
-            entity.Property(e => e.Status)
-                .IsRequired()
-                .HasMaxLength(256);
-
-            entity.HasOne(d => d.Membership).WithMany(p => p.StoreOwnerMemberships)
-                .HasForeignKey(d => d.MembershipId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__StoreOwne__Membe__07C12930");
-
-            entity.HasOne(d => d.StoreOwner).WithMany(p => p.StoreOwnerMemberships)
-                .HasForeignKey(d => d.StoreOwnerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__StoreOwne__Store__06CD04F7");
+            entity.HasOne(d => d.Store).WithMany(p => p.Users)
+                .HasForeignKey(d => d.StoreId)
+                .HasConstraintName("FK_User_Store");
         });
 
         OnModelCreatingPartial(modelBuilder);

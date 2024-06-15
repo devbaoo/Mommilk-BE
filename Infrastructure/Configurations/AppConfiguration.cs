@@ -18,6 +18,7 @@ namespace Infrastructure.Configurations
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
             // ...
+            services.AddScoped<IProductCategoryService, ProductCategoryService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();

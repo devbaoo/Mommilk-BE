@@ -1,4 +1,4 @@
-﻿using Application.Mappings;
+using Application.Mappings;
 using Application.Settings;
 using Domain.Entities;
 using Infrastructure.Configurations;
@@ -15,7 +15,6 @@ builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSet
 builder.Services.AddDbContext<SuaMe88Context>(options =>
         options.UseSqlServer(sqlConnectionString));
 builder.Services.AddControllers();
-
 
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>
@@ -38,8 +37,8 @@ builder.Services.AddCors(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-/*builder.Services.AddSwagger();
-*/builder.Services.AddDependenceInjection(builder.Configuration);
+builder.Services.AddSwagger();
+builder.Services.AddDependenceInjection();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddFirebase();
 
@@ -54,7 +53,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 //app.UseJwt();
-app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

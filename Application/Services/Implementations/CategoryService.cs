@@ -135,6 +135,26 @@ namespace Application.Services.Implementations
 
                     category.Name = model.Name;
                 }
+                if (model.TargetAudience != null)
+                {
+
+                    category.TargetAudience = model.TargetAudience;
+                }
+                if (model.AgeRange != null)
+                {
+
+                    category.AgeRange = model.AgeRange;
+                }
+                if (model.MilkType != null)
+                {
+
+                    category.MilkType = model.MilkType;
+                }
+                if (model.Icon != null)
+                {
+
+                    category.Icon = model.Icon;
+                }
                 _categoryRepository.Update(category);
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)

@@ -8,11 +8,19 @@ using Microsoft.Extensions.Configuration;
 using static Domain.Models.Auth.Login;
 using Domain.Models.Auth;
 using Domain.Models.CreateUserRequest;
+
 using Domain.Models.User;
 
 using Models.Data;
 
 namespace Application.Services.UserServices
+
+using SuaMe88.Data;
+
+using System.Reflection;
+
+
+
 {
     public class UserService : IUserService
     {
@@ -278,15 +286,7 @@ namespace Application.Services.UserServices
             try
             {
                 await Task.CompletedTask;
-                /*if (UserID != user.Id)
-                {
-                    return new Response<UpdateUserRequest>
-                    {
-                        Success = false,
-                        Message = $"User with ID {UserID} not match.",
-                        Status = (int)HttpStatusCode.OK
-                    };
-                }*/
+
                 var userInData = await GetByID(UserID);
                 if (userInData is null)
                 {

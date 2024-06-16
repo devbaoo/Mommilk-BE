@@ -23,9 +23,11 @@ namespace Application.Mappings
             CreateMap<CreateUserRequest, User>();
             CreateMap<User, UserProfile>();
             CreateMap<UserProfile, User>();
+
             CreateMap<User, UpdateUserRequest>();
             CreateMap<UpdateUserRequest, User>();
             
+
 
 
             //Order

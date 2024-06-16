@@ -6,7 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using Application.Services.UserServices;
+
+using SuaMe88.Services.UserServices;
+
 using System.Text;
 
 namespace Infrastructure.Configurations
@@ -18,6 +22,7 @@ namespace Infrastructure.Configurations
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
             // ...
+            services.AddScoped<IProductCategoryService, ProductCategoryService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
@@ -32,8 +37,10 @@ namespace Infrastructure.Configurations
                 services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();
+
 /*                c.DescribeAllParametersInCamelCase();
 */                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASP.Net 8.0 - SuaMe88", Description = "APIs Service", Version = "v1" });
+
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.",

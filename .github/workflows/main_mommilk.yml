@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - suame88
+name: Build and deploy ASP.Net Core app to Azure Web App - mommilk
 
 on:
   push:
@@ -52,15 +52,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_99174DE87790463897031980861BD23A }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0C49103528A4485580978CD3411106F6 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2944EB073303439189084D43D01CB658 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1EAC01CF75364D35B75757A3C9CAF213 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_780E6BA47CC342B3BFF10D5994EBB1D1 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_07D91BFEC2894975B3C7FD67B33451E4 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'suame88'
+          app-name: 'mommilk'
           slot-name: 'Production'
           package: .
           

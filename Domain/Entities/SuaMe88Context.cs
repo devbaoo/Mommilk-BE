@@ -43,7 +43,9 @@ public partial class SuaMe88Context : DbContext
     {
         modelBuilder.Entity<Category>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Category__3214EC077AEE05F1");
+
 
             entity.ToTable("Category");
 
@@ -63,7 +65,10 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Feedback>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC07C7732EF7");
+
+
 
             entity.ToTable("Feedback");
 
@@ -83,7 +88,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Membership>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC0735D7F1D6");
+
 
             entity.ToTable("Membership");
 
@@ -103,6 +110,7 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<MembershipTransaction>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC0781E46966");
 
             entity.ToTable("MembershipTransaction");
@@ -125,7 +133,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07701E5DF3");
+
 
             entity.ToTable("Order");
 
@@ -145,7 +155,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC073A49B93B");
+
 
             entity.ToTable("OrderDetail");
 
@@ -162,7 +174,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<OrderTransaction>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__OrderTra__3214EC0703EB4EB8");
+
 
             entity.ToTable("OrderTransaction");
 
@@ -184,7 +198,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Product__3214EC078F38BE07");
+
 
             entity.ToTable("Product");
 
@@ -218,6 +234,7 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__ProductC__3214EC070946694F");
 
             entity.ToTable("ProductCategory");
@@ -233,7 +250,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<ProductImage>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__ProductI__3214EC074B19E46C");
+
 
             entity.ToTable("ProductImage");
 
@@ -246,7 +265,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07EABEF56E");
+
 
             entity.ToTable("Role");
 
@@ -257,7 +278,9 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<Store>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Store__3214EC07404944E7");
+
 
             entity.ToTable("Store");
 
@@ -270,11 +293,13 @@ public partial class SuaMe88Context : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__User__3214EC07ADCB51FC");
 
             entity.ToTable("User");
 
             entity.HasIndex(e => e.Email, "UQ__User__A9D1053440CF85C3").IsUnique();
+
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Email)

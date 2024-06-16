@@ -19,7 +19,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrders([FromQuery] OrderFilterModel filter,[FromQuery] PaginationRequestModel pagination)
+        public async Task<IActionResult> GetOrders([FromQuery]OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
         {
             try
             {

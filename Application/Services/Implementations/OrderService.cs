@@ -40,7 +40,16 @@ namespace Application.Services.Implementations
             try
             {
                 var query = _orderRepository.GetAll();
-                if (filter.DeliveryDate != null)
+                if (filter.Id != null) {
+                    query = query
+                        .Where(x => x.Id == filter.Id);
+                }
+                if (filter.CustomerId != null)
+                {
+                    query = query
+                        .Where(x => x.CustomerId == filter.CustomerId);
+                }
+                if (filter.DeliveryDate.HasValue)
                 {
                     query = query
                     .Where(x => x.DeliveryDate.HasValue && x.DeliveryDate.Value.Date == filter.DeliveryDate.Value.Date);

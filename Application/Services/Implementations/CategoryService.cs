@@ -107,10 +107,14 @@ namespace Application.Services.Implementations
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)
                 {
-                    category.Ok();
+                    return new OkObjectResult(category);
+                }
+                else
+                {
+                    return AppErrors.CREATE_FAIL.BadRequest();
                 }
 
-                return AppErrors.CREATE_FAIL.BadRequest();
+                
             }
             catch (Exception)
             {

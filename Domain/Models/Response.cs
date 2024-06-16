@@ -1,7 +1,7 @@
 
 ﻿namespace Models.Data
-=======
-﻿namespace SuaMe88.Data
+
+
 
 {
     public class Response<T>

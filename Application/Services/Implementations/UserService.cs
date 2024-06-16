@@ -1,22 +1,26 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using AutoMapper;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Application.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using static Domain.Models.Auth.Login;
 using Domain.Models.Auth;
-using Microsoft.IdentityModel.JsonWebTokens;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using Domain.Models.CreateUserRequest;
-using SuaMe88.Data;
+
 using Domain.Models.User;
+
+using Models.Data;
+
+namespace Application.Services.UserServices
+
+using SuaMe88.Data;
+
 using System.Reflection;
 
-namespace SuaMe88.Services.UserServices
+
+
 {
     public class UserService : IUserService
     {

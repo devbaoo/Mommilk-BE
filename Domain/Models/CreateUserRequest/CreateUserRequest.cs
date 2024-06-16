@@ -15,10 +15,27 @@ namespace Domain.Models.CreateUserRequest
         public string Email { get; set; }
         public string Password { get; set; }
         public string Phone { get; set; }
+
+
+        public int? RoleId { get; set; } = 1;
+
+        public int? Status { get; set; } = 1;
+
+
+        /*        public string AvatarUrl { get; set; }
+                public string Rank { get; set; }*/
+        /*        public bool? Status { get; set; } = true;
+        */
+    }
+
         
 
 /*        public string AvatarUrl { get; set; }
         public string Rank { get; set; }*/
 /*        public bool? Status { get; set; } = true;
 */    }
+
 }
+
+
+

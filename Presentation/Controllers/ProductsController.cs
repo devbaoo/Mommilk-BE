@@ -59,5 +59,19 @@ namespace Presentation.Controllers
                 return new BadRequestObjectResult(e.Message);
             }
         }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> GetProduct([FromRoute] int id)
+        {
+            try
+            {
+                return await _productService.GetProduct(id);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
+        }
     }
 }

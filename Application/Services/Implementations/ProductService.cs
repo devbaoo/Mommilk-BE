@@ -142,7 +142,7 @@ namespace Application.Services.Implementations
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)
                 {
-                    product.Ok();
+                    return new OkObjectResult(product);
                 }
 
                 return AppErrors.CREATE_FAIL.BadRequest();

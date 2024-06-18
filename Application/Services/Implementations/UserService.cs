@@ -68,6 +68,7 @@ namespace Application.Services.UserServices
                     Name = user.Name,
                     Role = role?.Name,
                     Phone = "0" + user.Phone.ToString(),
+                    StoreId = user.StoreId
 
                 };
 

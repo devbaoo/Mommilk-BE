@@ -31,7 +31,7 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpGet("GetOrderById")]
+        [HttpGet("GetOrderDetails")]
         public async Task<IActionResult> GetOrderDetails([FromQuery] Guid id)
         {
             try

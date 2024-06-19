@@ -94,5 +94,41 @@ namespace Application.Services.Implementations
                 throw;
             }
         }
+
+        //public async Task<IActionResult> CreateOrder(OrderCreateModel model)
+        //{
+        //    try
+        //    {
+        //        var order = new Order
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            CustomerId = model.CustomerId,
+        //            Phone = model.Phone,
+        //            Address = model.Address,
+        //            Recipient = model.Recipient,
+        //            PaymentMethod = model.PaymentMethod,
+        //            Amount = model.Amount,
+        //            Status = model.Status,
+        //            DeliveryDate = DateTime.Now,
+        //        };
+        //        _orderRepository.Add(order);
+        //        await _unitOfWork.SaveChangesAsync();
+        //        foreach (OrderDetailCreateModel detail in model.OrderDetails)
+        //        {
+        //            _orderDetailRepository.Add(new OrderDetail
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                OrderId = order.Id,
+        //                ProductId = detail.ProductId,
+        //                Price = detail.Price,
+
+        //            });
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
     }
 }

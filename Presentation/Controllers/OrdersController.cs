@@ -18,7 +18,7 @@ namespace Presentation.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet]
+        [HttpGet("GetOrders")]
         public async Task<IActionResult> GetOrders([FromQuery] OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
         {
             try
@@ -31,7 +31,7 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpGet("/{id}")]
+        [HttpGet("GetOrderById")]
         public async Task<IActionResult> GetOrderDetails([FromQuery] Guid id)
         {
             try

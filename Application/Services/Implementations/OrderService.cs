@@ -67,39 +67,32 @@ namespace Application.Services.Implementations
             }
         }
 
-        //public async Task<IActionResult> CreateOrder(OrderCreateModel order)
-        //{
-        //    try
-        //    {
-        //        var tempOrder = new Order
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            CustomerId = order.CustomerId,
-        //            Address = order.Address,
-        //            Phone = order.Phone,
-        //            Recipient = order.Recipient,
-        //            Amount = order.Amount,
-        //            PaymentMethod = order.PaymentMethod,
-        //            Status = order.Status,
-        //            CreateAt = DateTime.Now
-        //        };
-        //        _orderRepository.Add(tempOrder);
-        //        var createdOrder = await _unitOfWork.SaveChangesAsync();
-        //        if(createdOrder > 0)
-        //        {
-        //            foreach (OrderDetailCreateModel orderDetail in order.OrderDetails) {
-        //                _orderDetailRepository.Add(new OrderDetail
-        //                {
-                            
-        //                }
-        //                );
-        //            }
-        //        }                
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        public async Task<IActionResult> GetOrderDetails(Guid target)
+        {
+            try
+            {
+                var order = _orderRepository.FirstOrDefault(x => x.Id == target);
+                var details = await _orderDetailRepository.GetAll()
+                    .Where(x => x.OrderId == target)
+                    .ToListAsync();
+                var result = new OrderViewModel
+                {
+                    Id = order.Id,
+                    CustomerId = order.CustomerId,
+                    DeliveryDate = order.DeliveryDate,
+                    Address = order.Address,
+                    Phone = order.Phone,
+                    Recipient = order.Recipient,
+                    Amount = order.Amount,
+                    PaymentMethod = order.PaymentMethod,
+                    Status = order.Status,
+                    OrderDetails = details,
+                };
+                return result.Ok();
+            } catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

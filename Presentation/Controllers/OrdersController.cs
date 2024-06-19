@@ -19,11 +19,24 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrders([FromQuery]OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
+        public async Task<IActionResult> GetOrders([FromQuery] OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
         {
             try
             {
                 return await _orderService.GetOrders(filter, pagination);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpGet("/{id}")]
+        public async Task<IActionResult> GetOrderDetails([FromQuery] Guid id)
+        {
+            try
+            {
+                return await (_orderService.GetOrderDetails(id));
             }
             catch (Exception ex)
             {

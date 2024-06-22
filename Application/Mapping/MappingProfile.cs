@@ -46,9 +46,16 @@ namespace Application.Mappings
                     Price = x.Price,
                 }).ToList()));
 
+            //Feedback
+            CreateMap<Feedback, FeedbackViewModel>();
+            CreateMap<FeedbackCreateModel, Feedback>();
+
             //Product
             CreateMap<Product, ProductViewModel>();
             CreateMap<ProductImage, ProductImageViewModel>();
+
+            //User
+            CreateMap<User, UserViewModel>();
         }
     }
 }

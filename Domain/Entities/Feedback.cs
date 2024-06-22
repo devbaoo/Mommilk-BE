@@ -5,11 +5,11 @@ namespace Domain.Entities;
 
 public partial class Feedback
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
+    
+    public int? ProductId { get; set; }
 
     public Guid? CustomerId { get; set; }
-
-    public int? ProductId { get; set; }
 
     public string Content { get; set; } = null!;
 

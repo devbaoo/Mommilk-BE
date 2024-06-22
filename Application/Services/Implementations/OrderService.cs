@@ -56,12 +56,13 @@ namespace Application.Services.Implementations
                     query = query
                     .Where(x => x.DeliveryDate.HasValue && x.DeliveryDate.Value.Date == filter.DeliveryDate.Value.Date);
                 }
+                var totalRow = query.Count();
                 var orders = await query
                     .Paginate(pagination)
                     .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
                     .OrderByDescending(x => x.DeliveryDate)
                     .ToListAsync();
-                return orders.Ok();
+                return orders.ToPaged(pagination, totalRow).Ok();
             }
             catch (Exception)
             {

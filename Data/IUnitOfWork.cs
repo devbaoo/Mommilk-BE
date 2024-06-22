@@ -8,6 +8,7 @@ namespace Data
         public IOrderRepository Order { get; }
         public IProductRepository Product { get; }
         public IOrderDetailRepository OrderDetail { get; }
+        public IOrderTransactionRepository OrderTransaction { get; }
         public IProductCategoryRepository ProductCategory { get; }
         public IFeedbackRepository Feedback { get; }
         void BeginTransaction();

@@ -26,6 +26,7 @@ namespace Application.Services.Implementations
         private readonly new IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly IOrderTransactionRepository _orderTransactionRepository;
         private readonly IProductRepository _productRepository;
 
         public OrderService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
@@ -33,6 +34,7 @@ namespace Application.Services.Implementations
             _mapper = mapper;
             _orderRepository = unitOfWork.Order;
             _orderDetailRepository = unitOfWork.OrderDetail;
+            _orderTransactionRepository = unitOfWork.OrderTransaction;
             _productRepository = unitOfWork.Product;
         }
 

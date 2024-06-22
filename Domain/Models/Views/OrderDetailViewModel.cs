@@ -3,7 +3,7 @@ namespace Domain.Models.Views
 {
     public class OrderDetailViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public double Price { get; set; }
 

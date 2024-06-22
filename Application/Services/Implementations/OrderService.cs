@@ -1,6 +1,7 @@
 ﻿using Application.Services.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Common.Errors;
 using Common.Extensions;
 using Data;
 using Data.Repositories.Interfaces;
@@ -40,7 +41,8 @@ namespace Application.Services.Implementations
             try
             {
                 var query = _orderRepository.GetAll();
-                if (filter.Id != null) {
+                if (filter.Id != null)
+                {
                     query = query
                         .Where(x => x.Id == filter.Id);
                 }
@@ -54,12 +56,12 @@ namespace Application.Services.Implementations
                     query = query
                     .Where(x => x.DeliveryDate.HasValue && x.DeliveryDate.Value.Date == filter.DeliveryDate.Value.Date);
                 }
-                var list = await query
+                var orders = await query
                     .Paginate(pagination)
                     .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
                     .OrderByDescending(x => x.DeliveryDate)
                     .ToListAsync();
-                return list.Ok();
+                return orders.Ok();
             }
             catch (Exception)
             {
@@ -67,68 +69,39 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> GetOrderDetails(Guid target)
+        public async Task<IActionResult> GetOrder(Guid id)
         {
             try
             {
-                var order = _orderRepository.FirstOrDefault(x => x.Id == target);
-                var details = await _orderDetailRepository.GetAll()
-                    .Where(x => x.OrderId == target)
-                    .ToListAsync();
-                var result = new OrderViewModel
-                {
-                    Id = order.Id,
-                    CustomerId = order.CustomerId,
-                    DeliveryDate = order.DeliveryDate,
-                    Address = order.Address,
-                    Phone = order.Phone,
-                    Recipient = order.Recipient,
-                    Amount = order.Amount,
-                    PaymentMethod = order.PaymentMethod,
-                    Status = order.Status,
-                    OrderDetails = details,
-                };
-                return result.Ok();
-            } catch (Exception)
+                var order = await _orderRepository.Where(x => x.Id.Equals(id))
+                    .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                return order != null ? order.Ok() : AppErrors.NOT_FOUND.NotFound();
+            }
+            catch (Exception)
             {
                 throw;
             }
         }
 
-        //public async Task<IActionResult> CreateOrder(OrderCreateModel model)
-        //{
-        //    try
-        //    {
-        //        var order = new Order
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            CustomerId = model.CustomerId,
-        //            Phone = model.Phone,
-        //            Address = model.Address,
-        //            Recipient = model.Recipient,
-        //            PaymentMethod = model.PaymentMethod,
-        //            Amount = model.Amount,
-        //            Status = model.Status,
-        //            DeliveryDate = DateTime.Now,
-        //        };
-        //        _orderRepository.Add(order);
-        //        await _unitOfWork.SaveChangesAsync();
-        //        foreach (OrderDetailCreateModel detail in model.OrderDetails)
-        //        {
-        //            _orderDetailRepository.Add(new OrderDetail
-        //            {
-        //                Id = Guid.NewGuid(),
-        //                OrderId = order.Id,
-        //                ProductId = detail.ProductId,
-        //                Price = detail.Price,
-        //                
-        //            });
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        public async Task<IActionResult> CreateOrder(Guid customerId, OrderCreateModel model)
+        {
+            try
+            {
+                var order = _mapper.Map<Order>(model);
+                order.CustomerId = customerId;
+                _orderRepository.Add(order);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return await GetOrder(order.Id);
+                }
+                return AppErrors.CREATE_FAIL.BadRequest();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

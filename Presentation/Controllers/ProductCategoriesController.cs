@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
-    [Route("api/ProductCategory")]
+    [Route("api/product-categories")]
     [ApiController]
     public class ProductCategoriesController : ControllerBase
     {

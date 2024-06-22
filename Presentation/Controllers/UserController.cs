@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     [Authorize]
 
@@ -42,12 +42,12 @@ namespace Presentation.Controllers
                 return ex.Message.InternalServerError();
             }
         }
-        [HttpGet("user-by-id/{userID}")]
-        public async Task<IActionResult> GetUserByID(Guid userID)
+        [HttpGet("user-by-id/{userId}")]
+        public async Task<IActionResult> GetUserByID(Guid userId)
         {
             try
             {
-                var result = await _userService.GetProfile(userID);
+                var result = await _userService.GetProfile(userId);
                 return StatusCode(result.Status, result);
             } 
             catch (Exception ex) {
@@ -70,12 +70,12 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpPut("update-user/{UserID}")]
-        public async Task<IActionResult> UpdateUser(Guid UserID, UpdateUserRequest request)
+        [HttpPut("update-user/{userId}")]
+        public async Task<IActionResult> UpdateUser(Guid userId, UpdateUserRequest request)
         {
             try
             {
-                var result = await _userService.UpdateUser(UserID, request);
+                var result = await _userService.UpdateUser(userId, request);
                 return StatusCode(result.Status, result);
             }
             catch (Exception ex)
@@ -83,12 +83,5 @@ namespace Presentation.Controllers
                 return ex.Message.InternalServerError();
             }
         }
-
-/*        [HttpDelete("delete-user/{UserID}")]
-        public async Task<IActionResult> DeleteUser(Guid UserID)
-        {
-            var result = await _userService.DeleteUser(UserID);
-            return StatusCode(result.Status, result);
-        }*/
     }
 }

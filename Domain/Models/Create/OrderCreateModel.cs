@@ -10,14 +10,11 @@ namespace Domain.Models.Create
 {
     public class OrderCreateModel
     {
-        public Guid CustomerId { get; set; }
         public string? Address { get; set; }
-        //[RegularExpression(@"^0\d{9}$", ErrorMessage = "Please provide a valid phone number ! (Example: 0901234567")]
         public string? Phone { get; set; }
         public string? Recipient { get; set; }
         public float Amount { get; set; }
         public string? PaymentMethod { get; set; }
-        public string Status { get; set; }
         public ICollection<OrderDetailCreateModel> OrderDetails { get; set; } = null!;
     }
 }

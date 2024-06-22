@@ -17,40 +17,39 @@ namespace Infrastructure.Configurations
 {
     public static class AppConfiguration
     {
-        public static void AddDependenceInjection(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDependenceInjection(this IServiceCollection services)
         {
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IProductService, ProductService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
             // ...
-            services.AddScoped<IProductCategoryService, ProductCategoryService>();
-            services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-
-            AddSwagger(services);
-            ConfigureAuthentication(services, configuration);
-            
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductCategoryService, ProductCategoryService>();
         }
         public static void AddSwagger(this IServiceCollection services)
         {
-                services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(c =>
+        {
+            c.EnableAnnotations();
+
+
+            // Thang nao comment dong nay nua chet me voi tao
+            c.DescribeAllParametersInCamelCase();
+
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASP.Net 8.0 - SuaMe88", Description = "APIs Service", Version = "v1" });
+
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
-                c.EnableAnnotations();
-
-/*                c.DescribeAllParametersInCamelCase();
-*/                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASP.Net 8.0 - SuaMe88", Description = "APIs Service", Version = "v1" });
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                  {
+                Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+              {
                     {
                       new OpenApiSecurityScheme
                       {
@@ -62,9 +61,10 @@ namespace Infrastructure.Configurations
                         },
                         new string[] {}
                       }
-                 });
-            });
+             });
+        });
         }
+
         public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,13 +83,5 @@ namespace Infrastructure.Configurations
                     };
                 });
         }
-
-
-
-
-        //public static void UseJwt(this IApplicationBuilder app)
-        //{
-        //    app.UseMiddleware<JwtMiddleware>();
-        //}
     }
 }

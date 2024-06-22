@@ -27,6 +27,8 @@ namespace Domain.Models.Views
 
         public DateTime? DeliveryDate { get; set; }
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public DateTime? CreateAt { get; set; }
+
+        public virtual ICollection<OrderDetailViewModel> OrderDetails { get; set; } = new List<OrderDetailViewModel>();
     }
 }

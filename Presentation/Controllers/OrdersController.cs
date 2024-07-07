@@ -93,7 +93,7 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("deliver")]
-        public async Task<IActionResult> DeliverOrder([FromRoute] Guid orderId)
+        public async Task<IActionResult> DeliverOrder([FromQuery] Guid orderId)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("complete")]
-        public async Task<IActionResult> CompleteOrder([FromRoute] Guid orderId)
+        public async Task<IActionResult> CompleteOrder([FromQuery] Guid orderId)
         {
             try
             {

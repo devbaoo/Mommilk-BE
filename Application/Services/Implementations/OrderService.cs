@@ -158,7 +158,6 @@ namespace Application.Services.Implementations
                     }
 
                     order.Status = OrderStatuses.CONFIRMED;
-                    order.IsPayment = true;
                     _orderRepository.Update(order);
                     await _unitOfWork.SaveChangesAsync();
                     return AppNotifications.CONFIRMED_ORDER.Ok();
@@ -204,29 +203,33 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> CompleteOrder(Guid orderId)
+        public async Task<IActionResult> CompleteOrder(Guid id)
         {
             try
             {
                 var order = await _orderRepository
-                    .Where(o => o.Id.Equals(orderId))
+                    .Where(o => o.Id.Equals(id))
                     .FirstOrDefaultAsync();
-                if (order == null)
+                if (order != null)
                 {
-                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                    if (order.Status != OrderStatuses.DELIVERING)
+                    {
+                        return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity();
+                    }
+                    order.Status = OrderStatuses.COMPLETED;
+                    if (order.IsPayment != true)
+                    {
+                        order.IsPayment = true;
+                    }
+                    _orderRepository.Update(order);
+                    var result = await _unitOfWork.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return AppNotifications.DELIVERING_ORDER.Ok();
+                    }
+                    return AppErrors.UPDATE_FAIL.UnprocessableEntity();
                 }
-                if (order.Status != OrderStatuses.DELIVERING)
-                {
-                    return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity();
-                }
-                order.Status = OrderStatuses.COMPLETED;
-                _orderRepository.Update(order);
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result > 0)
-                {
-                    return AppNotifications.DELIVERING_ORDER.Ok();
-                }
-                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+                return AppErrors.RECORD_NOT_FOUND.NotFound();
             }
             catch (Exception)
             {

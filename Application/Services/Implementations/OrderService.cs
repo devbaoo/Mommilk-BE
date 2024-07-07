@@ -158,6 +158,7 @@ namespace Application.Services.Implementations
                     }
 
                     order.Status = OrderStatuses.CONFIRMED;
+                    order.IsPayment = true;
                     _orderRepository.Update(order);
                     await _unitOfWork.SaveChangesAsync();
                     return AppNotifications.CONFIRMED_ORDER.Ok();

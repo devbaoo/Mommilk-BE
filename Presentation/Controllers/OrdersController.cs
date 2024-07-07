@@ -1,12 +1,12 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
-using Domain.Models.Create;
+using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
-using Microsoft.AspNetCore.Authorization;
+using Domain.Models.Updates;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -16,13 +16,28 @@ namespace Presentation.Controllers
     {
         private readonly IOrderService _orderService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService  orderService)
         {
             _orderService = orderService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetOrders([FromQuery] OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateModel model)
+        {
+            try
+            {
+                var auth = this.GetAuthenticatedUser();
+                return await _orderService.CreateOrder(auth.Id, model);
+            }
+            catch (Exception ex) {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPost]
+        [Route("filter")]
+        public async Task<IActionResult> GetOrders([FromBody] OrderFilterModel filter, [FromQuery] PaginationRequestModel pagination)
         {
             try
             {
@@ -36,7 +51,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetOrderDetails([FromRoute] Guid id)
+        public async Task<IActionResult> GetOrder([FromRoute] Guid id)
         {
             try
             {
@@ -48,15 +63,74 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
+        [Route("status")]
         [Authorize]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateModel model)
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderStatusUpdateModel model)
         {
             try
             {
-                var userId = Guid.Parse(User.FindFirstValue("UserID")!);
+                return await _orderService.UpdateOrderStatus(model);
+            }
+            catch (Exception ex) 
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
 
-                return await _orderService.CreateOrder(userId, model);
+        [HttpPut]
+        [Route("confirm")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmOrder([FromQuery] Guid orderId)
+        {
+            try
+            {
+                return await _orderService.ConfirmOrder(orderId);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPut]
+        [Route("deliver")]
+        [Authorize]
+        public async Task<IActionResult> DeliverOrder([FromRoute] Guid orderId)
+        {
+            try
+            {
+                return await _orderService.DeliverOrder(orderId);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPut]
+        [Route("complete")]
+        [Authorize]
+        public async Task<IActionResult> CompleteOrder([FromRoute] Guid orderId)
+        {
+            try
+            {
+                return await _orderService.CompleteOrder(orderId);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPut]
+        [Route("cancel")]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder([FromQuery] Guid orderId)
+        {
+            try
+            {
+                return await _orderService.CancelOrder(orderId);
             }
             catch (Exception ex)
             {

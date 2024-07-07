@@ -1,11 +1,10 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
-using Domain.Models.Create;
+using Domain.Models.Creates;
+using Domain.Models.Filters;
 using Domain.Models.Pagination;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -14,33 +13,21 @@ namespace Presentation.Controllers
     public class FeedbacksController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
+
         public FeedbacksController(IFeedbackService feedbackService)
         {
             _feedbackService = feedbackService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetFeedbacks([FromQuery] int? productId, [FromQuery] PaginationRequestModel pagination)
+        [HttpPost]
+        [Route("filter")]
+        public async Task<IActionResult> GetFeedbacks([FromBody]FeedbackFilterModel model, [FromQuery] PaginationRequestModel pagination)
         {
             try
             {
-                return await _feedbackService.GetFeedbacks(productId, pagination);
+                return await _feedbackService.GetFeedbacks(model, pagination);
             }
-            catch (Exception ex)
-            {
-                return ex.Message.InternalServerError();
-            }
-        }
-
-        [HttpGet]
-        [Route("/api/customer{customerId}")]
-        public async Task<IActionResult> GetFeedbacksByCustomerId([FromRoute] Guid customerId, [FromQuery] PaginationRequestModel pagination)
-        {
-            try
-            {
-                return await _feedbackService.GetFeedbacksByCustomerId(customerId, pagination);
-            }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
                 return ex.Message.InternalServerError();
             }
@@ -48,11 +35,27 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetFeedback([FromRoute] Guid id)
+        public async Task<IActionResult> GetFeedback(Guid id)
         {
             try
             {
                 return await _feedbackService.GetFeedback(id);
+            }
+            catch (Exception ex) 
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPost]
+        [Route("create/")]
+        [Authorize]
+        public async Task<IActionResult> CreateFeedback([FromBody] FeedbackCreateModel model)
+        {
+            try
+            {
+                var auth = this.GetAuthenticatedUser();
+                return await _feedbackService.CreateFeedback(auth.Id, model);
             }
             catch (Exception ex)
             {
@@ -60,19 +63,22 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("check/{productId}")]
         [Authorize]
-        public async Task<IActionResult> CreateFeedback ([FromBody] FeedbackCreateModel model)
+        public async Task<IActionResult> HasFeedback([FromRoute] Guid productId)
         {
             try
             {
-                var userId = Guid.Parse(User.FindFirstValue("UserId")!);                
-                return await _feedbackService.CreateFeedback(model, userId);
+                var auth = this.GetAuthenticatedUser();
+                bool result = await _feedbackService.HasFeedback(auth.Id, productId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 return ex.Message.InternalServerError();
             }
         }
+
     }
 }

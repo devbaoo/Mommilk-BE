@@ -1,11 +1,9 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
-using Domain.Models.Auth;
-using Domain.Models.CreateUserRequest;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Domain.Constants;
+using Domain.Models.Authentications;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -13,62 +11,38 @@ namespace Presentation.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;
-
-        public AuthController(IUserService userService)
+        private readonly IAuthService _authService;
+        public AuthController(IAuthService authService)
         {
-            _userService = userService;
+            _authService = authService;
         }
 
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        [HttpPost]
+        public async Task<IActionResult> Authenticate([FromBody] CertificateModel certificate)
         {
             try
             {
-                var result = await _userService.Login(request);
-                return StatusCode(result.Status, result);
+                return await _authService.Authenticate(certificate);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return ex.Message.InternalServerError();
-            }
-        }
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(CreateUserRequest request)
-        {
-            try
-            {
-                var result = await _userService.Register(request);
-                return StatusCode(result.Status, result);
-            }
-            catch (Exception ex)
-            {
-                return ex.Message.InternalServerError();
+                return e.Message.InternalServerError();
             }
         }
 
-
-        [HttpPut("change-password")]
+        [HttpPost]
+        [Route("sign-in-with-token")]
         [Authorize]
-        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        public async Task<IActionResult> GetInformation()
         {
-            
             try
             {
-                var change = User.FindFirstValue("UserID");
-                if (change == null)
-                {
-                    return Unauthorized();
-                }
-
-                var result = await _userService.ChangePassword(Guid.Parse(change), request);
-                return StatusCode(result.Status, result);
-            } 
-            catch (Exception ex)
+                var auth = this.GetAuthenticatedUser();
+                return await _authService.GetInformation(auth.Id);
+            }
+            catch (Exception e)
             {
-                return ex.Message.InternalServerError();
+                return e.Message.InternalServerError();
             }
         }
     }

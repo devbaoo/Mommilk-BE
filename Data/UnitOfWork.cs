@@ -15,45 +15,94 @@ namespace Data
             _context = context;
         }
 
-        // Getter
         public ICategoryRepository _category = null!;
-        //public ICategoryRepository _category = null!;
-        public IOrderRepository _order = null!;
-        public IProductRepository _product = null!;
-        public IOrderDetailRepository _orderDetail = null!;
-        public IFeedbackRepository _feedback = null!;
-        public IProductCategoryRepository _productCategory = null!;
-        public IOrderTransactionRepository _orderTransaction = null!;
 
-        //Setter
         public ICategoryRepository Category
         {
             get { return _category ??= new CategoryRepository(_context); }
         }
+
+        public IProductCategoryRepository _productCateogry = null!;
+
+        public IProductCategoryRepository ProductCategory
+        {
+            get { return _productCateogry ??= new ProductCategoryRepository(_context); }
+        }
+
+        public IOrderRepository _order = null!;
+
         public IOrderRepository Order
         {
             get { return _order ??= new OrderRepository(_context); }
         }
-        public IProductRepository Product
-        {
-            get { return _product ??= new ProductRepository(_context); }
-        }
+
+        public IOrderDetailRepository _orderDetail = null!;
+
         public IOrderDetailRepository OrderDetail
         {
             get { return _orderDetail ??= new OrderDetailRepository(_context); }
         }
-        public IOrderTransactionRepository OrderTransaction
-        {
-            get { return _orderTransaction ??= new OrderTransactionRepository(_context); }
-        }
-        public IProductCategoryRepository ProductCategory
-        {
-            get { return _productCategory ??= new ProductCategoryRepository(_context); }
-        }
+
+        public IFeedbackRepository _feedback = null!;
 
         public IFeedbackRepository Feedback
         {
             get { return _feedback ??= new FeedbackRepository(_context); }
+        }
+
+        public IAdminRepository _admin = null!;
+
+        public IAdminRepository Admin
+        {
+            get { return _admin ??= new AdminRepository(_context); }
+        }
+
+        public IStaffRepository _staff = null!;
+
+        public IStaffRepository Staff
+        {
+            get { return _staff ??= new StaffRepository(_context); }
+        }
+
+        public ICustomerRepository _customer = null!;
+
+        public ICustomerRepository Customer
+        {
+            get { return _customer ??= new CustomerRepository(_context); }
+        }
+
+        public IProductRepository _product = null!;
+
+        public IProductRepository Product
+        {
+            get { return _product ??= new ProductRepository(_context); }
+        }
+
+        public IVoucherRepository _voucher = null!;
+
+        public IVoucherRepository Voucher
+        {
+            get { return _voucher ??= new VoucherRepository(_context); }
+        }
+
+        public IProductLineRepository _productLine = null!;
+
+        public IProductLineRepository ProductLine
+        {
+            get { return _productLine ??= new ProductLineRepository(_context); }
+        }
+
+        public IProductLineChangeRepository _productLineChange = null!;
+
+        public IProductLineChangeRepository ProductLineChange
+        {
+            get { return _productLineChange ??= new ProductLineChangeRepository(_context); }
+        }
+
+        public ITransactionRepository _eTransaction = null!;
+        public ITransactionRepository Transaction
+        {
+            get { return _eTransaction ??= new TransactionRepository(_context); }
         }
 
         public void BeginTransaction()

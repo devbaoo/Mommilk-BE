@@ -15,124 +15,126 @@ public partial class SuaMe88Context : DbContext
     {
     }
 
+    public virtual DbSet<Admin> Admins { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<Feedback> Feedbacks { get; set; }
-
-    public virtual DbSet<Membership> Memberships { get; set; }
-
-    public virtual DbSet<MembershipTransaction> MembershipTransactions { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
-    public virtual DbSet<OrderTransaction> OrderTransactions { get; set; }
+    public virtual DbSet<OrderVoucher> OrderVouchers { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
 
-    public virtual DbSet<ProductImage> ProductImages { get; set; }
+    public virtual DbSet<ProductLine> ProductLines { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<ProductLineChange> ProductLineChanges { get; set; }
 
-    public virtual DbSet<Store> Stores { get; set; }
+    public virtual DbSet<Staff> Staff { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Transaction> Transactions { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=mommilk.database.windows.net;Initial Catalog=SuaMe88;Persist Security Info=True;User ID=mommilkadmin; Password=mommilk88@; TrustServerCertificate=True");
+    public virtual DbSet<Voucher> Vouchers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Admin>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Admin__3214EC0722169946");
+
+            entity.ToTable("Admin");
+
+            entity.HasIndex(e => e.Username, "UQ__Admin__536C85E461BBA792").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Password).HasMaxLength(256);
+            entity.Property(e => e.Username).HasMaxLength(256);
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0767639E37");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07FF8C6AE7");
 
             entity.ToTable("Category");
 
-            entity.Property(e => e.AgeRange).HasMaxLength(256);
-            entity.Property(e => e.MilkType).HasMaxLength(256);
+            entity.HasIndex(e => e.Name, "UQ__Category__737584F64F3FE3B4").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name).HasMaxLength(256);
-            entity.Property(e => e.TargetAudience).HasMaxLength(256);
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC07E0DB42C7");
+
+            entity.ToTable("Customer");
+
+            entity.HasIndex(e => e.Username, "UQ__Customer__536C85E4BB447CDB").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreateAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(256);
+            entity.Property(e => e.Password).HasMaxLength(256);
+            entity.Property(e => e.Phone).HasMaxLength(256);
+            entity.Property(e => e.Status).HasMaxLength(256);
+            entity.Property(e => e.Username).HasMaxLength(256);
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC0708EC293A");
+            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC07DA9457D5");
 
             entity.ToTable("Feedback");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK_Feedback_User");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Feedback__Custom__5FB337D6");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Feedback_Product");
-        });
-
-        modelBuilder.Entity<Membership>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC078FF9577B");
-
-            entity.ToTable("Membership");
-
-            entity.Property(e => e.Description).HasMaxLength(256);
-            entity.Property(e => e.ExpireDate).HasColumnType("datetime");
-            entity.Property(e => e.Price).HasColumnType("money");
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(10);
-            entity.Property(e => e.Title).HasMaxLength(256);
-        });
-
-        modelBuilder.Entity<MembershipTransaction>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Membersh__3214EC07E0D388E6");
-
-            entity.ToTable("MembershipTransaction");
-
-            entity.Property(e => e.CreateAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(256);
-
-            entity.HasOne(d => d.Membership).WithMany(p => p.MembershipTransactions)
-                .HasForeignKey(d => d.MembershipId)
-                .HasConstraintName("FK_MembershipTransaction_Membership");
-
-            entity.HasOne(d => d.StoreOwner).WithMany(p => p.MembershipTransactions)
-                .HasForeignKey(d => d.StoreOwnerId)
-                .HasConstraintName("FK_MembershipTransaction_User");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07C35F3BB2");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07F97FA1BF");
 
             entity.ToTable("Order");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.DeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.CreateAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod).HasMaxLength(256);
-            entity.Property(e => e.Phone).HasMaxLength(15);
-            entity.Property(e => e.Recipient).HasMaxLength(256);
+            entity.Property(e => e.Phone).HasMaxLength(256);
+            entity.Property(e => e.Receiver).HasMaxLength(256);
             entity.Property(e => e.Status).HasMaxLength(256);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK_Order_User");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Order__CustomerI__619B8048");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC07B52907BC");
+            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC0789CF2493");
 
             entity.ToTable("OrderDetail");
 
@@ -141,128 +143,156 @@ public partial class SuaMe88Context : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrderDetail_Order");
+                .HasConstraintName("FK__OrderDeta__Order__628FA481");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrderDetail_Product");
+                .HasConstraintName("FK__OrderDeta__Produ__6383C8BA");
         });
 
-        modelBuilder.Entity<OrderTransaction>(entity =>
+        modelBuilder.Entity<OrderVoucher>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderTra__3214EC07167249D4");
+            entity.HasKey(e => e.Id).HasName("PK__OrderVou__3214EC07BCAC7BD6");
 
-            entity.ToTable("OrderTransaction");
+            entity.ToTable("OrderVoucher");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(256);
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.OrderTransactions)
-                .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK_OrderTransaction_User");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderTransactions)
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderVouchers)
                 .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FK_OrderTransaction_Order");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderVouc__Order__778AC167");
+
+            entity.HasOne(d => d.Voucher).WithMany(p => p.OrderVouchers)
+                .HasForeignKey(d => d.VoucherId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderVouc__Vouch__787EE5A0");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Product__3214EC0785C038C6");
+            entity.HasKey(e => e.Id).HasName("PK__Product__3214EC07ED5F91B2");
 
             entity.ToTable("Product");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Brand).HasMaxLength(256);
-            entity.Property(e => e.Capacity).HasMaxLength(256);
-            entity.Property(e => e.CreateAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
-            entity.Property(e => e.Flavour).HasMaxLength(256);
-            entity.Property(e => e.Ingredient).HasMaxLength(256);
+            entity.Property(e => e.MadeIn).HasMaxLength(256);
             entity.Property(e => e.Name).HasMaxLength(256);
             entity.Property(e => e.Origin).HasMaxLength(256);
-            entity.Property(e => e.Sample).HasMaxLength(256);
             entity.Property(e => e.Status).HasMaxLength(256);
-            entity.Property(e => e.SweetLevel).HasMaxLength(256);
-
-            entity.HasOne(d => d.Store).WithMany(p => p.Products)
-                .HasForeignKey(d => d.StoreId)
-                .HasConstraintName("FK_Product_Store");
         });
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ProductC__3214EC07A1856F23");
+            entity.HasKey(e => new { e.CategoryId, e.ProductId }).HasName("PK__ProductC__D249F6677DDFBCFB");
 
             entity.ToTable("ProductCategory");
 
+            entity.HasIndex(e => e.Id, "UQ__ProductC__3214EC06E80668B3").IsUnique();
+
             entity.HasOne(d => d.Category).WithMany(p => p.ProductCategories)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK_ProductCategory_Category");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductCa__Categ__6477ECF3");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductCategories)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK_ProductCategory_Product");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductCa__Produ__656C112C");
         });
 
-        modelBuilder.Entity<ProductImage>(entity =>
+        modelBuilder.Entity<ProductLine>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ProductI__3214EC0760F18029");
+            entity.HasKey(e => e.Id).HasName("PK__ProductL__3214EC070DC00179");
 
-            entity.ToTable("ProductImage");
+            entity.ToTable("ProductLine");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.ExpiredAt).HasColumnType("datetime");
+            entity.Property(e => e.ImportDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductLines)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK_ProductImage_Product");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductLi__Produ__02FC7413");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<ProductLineChange>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC0707D641D2");
+            entity.HasKey(e => e.Id).HasName("PK__ProductL__3214EC074A607A97");
 
-            entity.ToTable("Role");
+            entity.ToTable("ProductLineChange");
 
-            entity.Property(e => e.Name).HasMaxLength(256);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreateAt).HasColumnType("datetime");
+            entity.Property(e => e.Purpose).HasMaxLength(256);
+
+            entity.HasOne(d => d.ProductLine).WithMany(p => p.ProductLineChanges)
+                .HasForeignKey(d => d.ProductLineId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductLi__Produ__4F47C5E3");
         });
 
-        modelBuilder.Entity<Store>(entity =>
+        modelBuilder.Entity<Staff>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Store__3214EC0712D787E7");
+            entity.HasKey(e => e.Id).HasName("PK__Staff__3214EC07A1C82254");
 
-            entity.ToTable("Store");
+            entity.HasIndex(e => e.Username, "UQ__Staff__536C85E46A1DE519").IsUnique();
 
-            entity.Property(e => e.Name).HasMaxLength(256);
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__User__3214EC072A5FDE56");
-
-            entity.ToTable("User");
-
-            entity.HasIndex(e => e.Email, "UQ__User__A9D105346DA279B1").IsUnique();
-
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreateAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(256);
             entity.Property(e => e.Password).HasMaxLength(256);
-            entity.Property(e => e.Phone).HasMaxLength(256);
-            entity.Property(e => e.Rank)
-                .HasMaxLength(256)
-                .HasDefaultValue("iron");
-            entity.Property(e => e.Status).HasDefaultValue(true);
+            entity.Property(e => e.Status).HasMaxLength(256);
+            entity.Property(e => e.Username).HasMaxLength(256);
+        });
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK_User_Role");
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Transact__3214EC07045AA902");
 
-            entity.HasOne(d => d.Store).WithMany(p => p.Users)
-                .HasForeignKey(d => d.StoreId)
-                .HasConstraintName("FK_User_Store");
+            entity.ToTable("Transaction");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreateAt).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(256);
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Transactions)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Transacti__Custo__70DDC3D8");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Transactions)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Transacti__Order__6FE99F9F");
+        });
+
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Voucher__3214EC079B3F14BA");
+
+            entity.ToTable("Voucher");
+
+            entity.HasIndex(e => e.Code, "UQ__Voucher__A25C5AA79594848A").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(256);
+            entity.Property(e => e.CreateAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.From).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(256);
+            entity.Property(e => e.To).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

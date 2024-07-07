@@ -1,10 +1,8 @@
 ﻿using Application.Services.Interfaces;
-using Common.Extensions;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -19,22 +17,28 @@ namespace Presentation.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCategories([FromQuery] CategoryFilterModel filter, [FromQuery] PaginationRequestModel pagination)
+        [HttpPost]
+        [Route("filter")]
+        public async Task<IActionResult> GetCategories([FromBody] CategoryFilterModel filter)
         {
             try
             {
-                return await _categoryService.GetCategories(filter, pagination);
+                var aaa = new PaginationRequestModel()
+                {
+                    PageNumber = 0,
+                    PageSize = 10,
+                };
+                return await _categoryService.GetCategories(filter, aaa);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return ex.Message.InternalServerError();
+                return new BadRequestObjectResult(e.Message);
             }
         }
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetCategory([FromRoute] int id)
+        public async Task<IActionResult> GetCategory([FromRoute] Guid id)
         {
             try
             {
@@ -61,7 +65,7 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] CategoryUpdateModel model)
+        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id ,[FromBody] CategoryUpdateModel model)
         {
             try
             {

@@ -6,18 +6,18 @@ namespace Domain.Entities;
 public partial class Feedback
 {
     public Guid Id { get; set; }
-    
-    public int? ProductId { get; set; }
 
-    public Guid? CustomerId { get; set; }
+    public Guid ProductId { get; set; }
 
-    public string Content { get; set; } = null!;
+    public Guid CustomerId { get; set; }
 
-    public int RateStar { get; set; }
+    public string? Message { get; set; }
+
+    public int Star { get; set; }
 
     public DateTime CreateAt { get; set; }
 
-    public virtual User? Customer { get; set; }
+    public virtual Customer Customer { get; set; } = null!;
 
-    public virtual Product? Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 }

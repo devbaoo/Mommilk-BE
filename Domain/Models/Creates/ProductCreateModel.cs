@@ -1,43 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Domain.Models.Creates
 {
     public class ProductCreateModel
     {
-        public int Id { get; set; }
+        public string Name { get; set; } = null!;
 
-        public string Name { get; set; }
+        public string Description { get; set; } = null!;
 
-        public string Origin { get; set; }
+        public string Origin { get; set; } = null!;
 
-        public string Brand { get; set; }
+        public IFormFile Thumbnail { get; set; } = null!;
 
-        public string Ingredient { get; set; }
+        public string MadeIn { get; set; } = null!;
 
-        public string SweetLevel { get; set; }
+        public string Brand { get; set; } = null!;
 
-        public string Flavour { get; set; }
+        public int Price { get; set; }
 
-        public string Sample { get; set; }
+        public int? PromotionPrice { get; set; }
 
-        public string Capacity { get; set; }
-
-        public string Description { get; set; }
-
-        public double Price { get; set; }
-
-        public int Quantity { get; set; }
-
-        public DateTime ExpireAt { get; set; }
-
-        public int? StoreId { get; set; }
-
-        public DateTime CreateAt { get; set; }
-
-        public string Status { get; set; }
+        public ICollection<ProductCategoryCreateModel> ProductCategories { get; set; } = new List<ProductCategoryCreateModel>();
     }
 }

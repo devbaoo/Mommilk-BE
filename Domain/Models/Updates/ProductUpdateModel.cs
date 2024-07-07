@@ -1,43 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Domain.Models.Updates
 {
     public class ProductUpdateModel
     {
-        
+        public string? Name { get; set; }
 
-        public string Name { get; set; }
+        public string? Description { get; set; }
 
-        public string Origin { get; set; }
+        public string? Origin { get; set; }
 
-        public string Brand { get; set; }
+        public IFormFile? Thumbnail { get; set; }
 
-        public string Ingredient { get; set; }
+        public string? Brand { get; set; }
 
-        public string SweetLevel { get; set; }
+        public int? Price { get; set; }
 
-        public string Flavour { get; set; }
+        public int? PromotionPrice { get; set; }
 
-        public string Sample { get; set; }
-
-        public string Capacity { get; set; }
-
-        public string Description { get; set; }
-
-        public double Price { get; set; }
-
-        public int Quantity { get; set; }
-
-        public DateTime ExpireAt { get; set; }
-
-        public int? StoreId { get; set; }
-
-        public DateTime CreateAt { get; set; }
-
-        public string Status { get; set; }
+        public string? Status { get; set; }
     }
 }

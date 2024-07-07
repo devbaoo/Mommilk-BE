@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Models.Views
+﻿namespace Domain.Models.Views
 {
     public class UserViewModel
     {
         public Guid Id { get; set; }
 
-        public string Email { get; set; } = null!;
-
-        public string? Phone { get; set; }
+        public string Username { get; set; } = null!;
 
         public string Name { get; set; } = null!;
 
-        public string? AvatarUrl { get; set; }
+        public string? Phone { get; set; } = null!;
 
-        public string Rank { get; set; } = null!;
+        public string Role { get; set; } = null!;
 
-        public bool Status { get; set; }
+        public string Status { get; set; } = null!;
+
+        public DateTime CreateAt { get; set; }
     }
 }

@@ -7,26 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\**" />
-    <Compile Remove="Models\**" />
-    <Compile Remove="Services\**" />
-    <Content Remove="Data\**" />
-    <Content Remove="Models\**" />
-    <Content Remove="Services\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <EmbeddedResource Remove="Models\**" />
-    <EmbeddedResource Remove="Services\**" />
-    <None Remove="Data\**" />
-    <None Remove="Models\**" />
-    <None Remove="Services\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="efpt.config.json.user" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.6.2" />
   </ItemGroup>

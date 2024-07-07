@@ -1,11 +1,9 @@
-﻿using Application.Services.Implementations;
-using Application.Services.Interfaces;
-using Common.Extensions;
+﻿using Application.Services.Interfaces;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -20,21 +18,36 @@ namespace Presentation.Controllers
             _productService = productService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetProducts([FromQuery] ProductFilterModel filter, [FromQuery] PaginationRequestModel pagination)
+        [HttpPost]
+        [Route("filter")]
+        public async Task<IActionResult> GetProducts([FromBody] ProductFilterModel filter, [FromQuery] PaginationRequestModel pagination)
         {
             try
             {
                 return await _productService.GetProducts(filter, pagination);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return  ex.Message.InternalServerError();   
+                return new BadRequestObjectResult(e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> GetProduct([FromRoute] Guid id)
+        {
+            try
+            {
+                return await _productService.GetProduct(id);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateModel model)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateModel model)
         {
             try
             {
@@ -48,25 +61,11 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductUpdateModel model)
+        public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromForm] ProductUpdateModel model)
         {
             try
             {
                 return await _productService.UpdateProduct(id, model);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetProduct([FromRoute] int id)
-        {
-            try
-            {
-                return await _productService.GetProduct(id);
             }
             catch (Exception e)
             {

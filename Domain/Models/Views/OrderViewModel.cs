@@ -1,34 +1,29 @@
-﻿using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Models.Views
+﻿namespace Domain.Models.Views
 {
     public class OrderViewModel
     {
         public Guid Id { get; set; }
 
-        public Guid? CustomerId { get; set; }
+        public CustomerViewModel Customer { get; set; } = null!;
 
-        public string Address { get; set; }
+        public int Amount { get; set; }
 
-        public string Phone { get; set; }
+        public string Receiver { get; set; } = null!;
 
-        public string Recipient { get; set; }
+        public string Address { get; set; } = null!;
 
-        public double Amount { get; set; }
+        public string Phone { get; set; } = null!;
 
-        public string PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; } = null!;
 
-        public string Status { get; set; }
+        public bool IsPayment { get; set; }
 
-        public DateTime? DeliveryDate { get; set; }
+        public string Status { get; set; } = null!;
 
         public DateTime? CreateAt { get; set; }
 
-        public virtual ICollection<OrderDetailViewModel> OrderDetails { get; set; } = new List<OrderDetailViewModel>();
+        public int? Discount { get; set; }
+
+        public ICollection<OrderDetailViewModel> OrderDetails { get; set; } = new List<OrderDetailViewModel>();
     }
 }

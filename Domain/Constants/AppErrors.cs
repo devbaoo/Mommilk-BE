@@ -5,6 +5,7 @@
         public const string INVALID_CERTIFICATE = "Tài khoản hoặc mật khẩu không đúng";
         public const string INVALID_USER_UNACTIVE = "User không còn hoạt động";
         public const string NO_CHANGE = "Không có thay đổi trong dữ liệu được cung cấp";
+        public const string INVALID_DATE = "Ngày đặt không hợp lệ";
 
         // User
         public const string USER_NOT_EXIST = "User không tồn tại";

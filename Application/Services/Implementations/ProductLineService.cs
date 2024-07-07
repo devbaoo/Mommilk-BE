@@ -92,6 +92,10 @@ namespace Application.Services.Implementations
         {
             try
             {
+                if (model.ExpiredAt <= DateTimeHelper.VnNow) 
+                {
+                    return AppErrors.INVALID_DATE.UnprocessableEntity();
+                }
                 var product = await _productRepository
                     .Where(p => p.Id.Equals(productId))
                     .FirstOrDefaultAsync();

@@ -65,7 +65,6 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("status")]
-        [Authorize]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderStatusUpdateModel model)
         {
             try
@@ -80,7 +79,6 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("confirm")]
-        [Authorize]
         public async Task<IActionResult> ConfirmOrder([FromQuery] Guid orderId)
         {
             try
@@ -95,7 +93,6 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("deliver")]
-        [Authorize]
         public async Task<IActionResult> DeliverOrder([FromRoute] Guid orderId)
         {
             try
@@ -110,7 +107,6 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("complete")]
-        [Authorize]
         public async Task<IActionResult> CompleteOrder([FromRoute] Guid orderId)
         {
             try
@@ -125,7 +121,6 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("cancel")]
-        [Authorize]
         public async Task<IActionResult> CancelOrder([FromQuery] Guid orderId)
         {
             try

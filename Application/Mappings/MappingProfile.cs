@@ -51,6 +51,7 @@ namespace Application.Mappings
             CreateMap<Category, CategoryViewModel>();
             CreateMap<CategoryCreateModel, Category>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
+            CreateMap<CategoryUpdateModel, Category>();
 
             // Product
             CreateMap<Product, ProductViewModel>()

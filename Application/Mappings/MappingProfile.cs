@@ -46,8 +46,11 @@ namespace Application.Mappings
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => UserStatuses.ACTIVE))
                 .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => DateTimeHelper.VnNow));
             CreateMap<CustomerUpdateModel, Customer>();
+
             // Category
             CreateMap<Category, CategoryViewModel>();
+            CreateMap<CategoryCreateModel, Category>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
 
             // Product
             CreateMap<Product, ProductViewModel>()

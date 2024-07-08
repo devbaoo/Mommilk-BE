@@ -154,26 +154,15 @@ namespace Application.Services.Implementations
                 }
                 if (model.Status != null)
                 {
-                    if (model.Status.Equals(CustomerStatuses.ACTIVE))
-                    {
-                        if (customer.Status.Equals(CustomerStatuses.ACTIVE))
-                        {
-                            return AppErrors.NO_CHANGE.UnprocessableEntity();
-                        }
-                        customer.Status = CustomerStatuses.INACTIVE;
-                    }
-                    else if (model.Status.Equals(CustomerStatuses.INACTIVE))
-                    {
-                        if (customer.Status.Equals(CustomerStatuses.INACTIVE))
-                        {
-                            return AppErrors.NO_CHANGE.UnprocessableEntity();
-                        }
-                        customer.Status = CustomerStatuses.INACTIVE;
-                    }
-                    else
+                    if (model.Status != CustomerStatuses.ACTIVE && model.Status != CustomerStatuses.INACTIVE)
                     {
                         return AppErrors.INVALID_STATUS.UnprocessableEntity();
                     }
+                    if (model.Status == customer.Status)
+                    {
+                        return AppErrors.NO_CHANGE.UnprocessableEntity();
+                    }
+                    customer.Status = model.Status;
                 }
                 _customerRepository.Update(customer);
                 var result = await _unitOfWork.SaveChangesAsync();
@@ -302,26 +291,15 @@ namespace Application.Services.Implementations
                 }
                 if (model.Status != null)
                 {
-                    if (model.Status.Equals(CustomerStatuses.ACTIVE))
-                    {
-                        if (staff.Status.Equals(CustomerStatuses.ACTIVE))
-                        {
-                            return AppErrors.NO_CHANGE.UnprocessableEntity();
-                        }
-                        staff.Status = CustomerStatuses.INACTIVE;
-                    }
-                    else if (model.Status.Equals(CustomerStatuses.INACTIVE))
-                    {
-                        if (staff.Status.Equals(CustomerStatuses.INACTIVE))
-                        {
-                            return AppErrors.NO_CHANGE.UnprocessableEntity();
-                        }
-                        staff.Status = CustomerStatuses.INACTIVE;
-                    }
-                    else
+                    if (model.Status != CustomerStatuses.ACTIVE && model.Status != CustomerStatuses.INACTIVE) 
                     {
                         return AppErrors.INVALID_STATUS.UnprocessableEntity();
                     }
+                    if (model.Status == staff.Status)
+                    {
+                        return AppErrors.NO_CHANGE.UnprocessableEntity();
+                    }
+                    staff.Status = model.Status;
                 }
                 _staffRepository.Update(staff);
                 var result = await _unitOfWork.SaveChangesAsync();

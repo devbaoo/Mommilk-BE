@@ -142,25 +142,24 @@ namespace Application.Services.Implementations
                 .FirstOrDefaultAsync();
                 if (order != null)
                 {
-                    if(order.Status != OrderStatuses.PENDING || order.Status != OrderStatuses.PAID)
+                    if (order.Status == OrderStatuses.PENDING || order.Status == OrderStatuses.PAID)
                     {
-                        return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity();
+                        var orderDetails = await _orderDetailRepository
+                        .Where(od => od.OrderId.Equals(id))
+                        .ToListAsync();
+
+                        var result = await _productLineService.ReduceProductLineQuantity(orderDetails, "purchase: " + id.ToString().ToLower());
+                        if (result is ObjectResult objectResult && objectResult.StatusCode == 422)
+                        {
+                            return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.UnprocessableEntity();
+                        }
+
+                        order.Status = OrderStatuses.CONFIRMED;
+                        _orderRepository.Update(order);
+                        await _unitOfWork.SaveChangesAsync();
+                        return AppNotifications.CONFIRMED_ORDER.Ok();
                     }
-
-                    var orderDetails = await _orderDetailRepository
-                    .Where(od => od.OrderId.Equals(id))
-                    .ToListAsync();
-
-                    var result = await _productLineService.ReduceProductLineQuantity(orderDetails, "purchase: " + id.ToString().ToLower());
-                    if(result is ObjectResult objectResult && objectResult.StatusCode==422)
-                    {
-                        return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.UnprocessableEntity();
-                    }
-
-                    order.Status = OrderStatuses.CONFIRMED;
-                    _orderRepository.Update(order);
-                    await _unitOfWork.SaveChangesAsync();
-                    return AppNotifications.CONFIRMED_ORDER.Ok();
+                    return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity(); 
                 }
                 else
                 {

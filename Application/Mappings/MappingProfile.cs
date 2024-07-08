@@ -133,7 +133,9 @@ namespace Application.Mappings
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => VoucherStatuses.ACTIVE))
                 .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => DateTimeHelper.VnNow));
-            CreateMap<Voucher, VoucherViewModel>();
+            CreateMap<Voucher, VoucherViewModel>()
+                .ForMember(dest => dest.From, opt => opt.MapFrom(src => src.From.ToString("dd/MM/yyyy")))
+                .ForMember(dest => dest.To, opt => opt.MapFrom(src => src.To.ToString("dd/MM/yyyy")));
             CreateMap<VoucherUpdateModel, Voucher>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 

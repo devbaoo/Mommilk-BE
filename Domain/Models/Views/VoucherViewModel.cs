@@ -16,9 +16,9 @@ namespace Domain.Models.Views
 
         public string ThumbnailUrl { get; set; } = null!;
 
-        public DateTime From { get; set; }
+        public string From { get; set; }
 
-        public DateTime To { get; set; }
+        public string To { get; set; }
 
         public int? MinOrderValue { get; set; }
 

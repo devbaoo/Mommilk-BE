@@ -86,6 +86,7 @@ namespace Application.Services.Implementations
                         Role = UserRoles.CUSTOMER,
                         Status = customer.Status,
                         CreateAt = customer.CreateAt,
+                        Address = customer.Address,
                     }
                 }.Ok();
             }

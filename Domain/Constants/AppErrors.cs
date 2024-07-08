@@ -2,44 +2,38 @@
 {
     public class AppErrors
     {
-        public const string INVALID_CERTIFICATE = "Tài khoản hoặc mật khẩu không đúng";
-        public const string INVALID_USER_UNACTIVE = "User không còn hoạt động";
-        public const string NO_CHANGE = "Không có thay đổi trong dữ liệu được cung cấp";
-        public const string INVALID_DATE = "Ngày đặt không hợp lệ";
+        public const string INVALID_CERTIFICATE = "Account username or password is incorrect";
+        public const string INVALID_USER_UNACTIVE = "User is inactive";
+        public const string NO_CHANGE = "No change in request provided";
+        public const string INVALID_DATE = "Invalid date";
 
         // User
-        public const string USER_NOT_EXIST = "User không tồn tại";
-        public const string USERNAME_EXIST = "Username đã tồn tại";
-        public const string WRONG_PASSWORD = "Sai mật khẩu cũ";
-        public const string SAME_PASSOWRD = "Mật khẩu cũ và mới trung nhau";
-        public const string SAME_STATUS = "Không có thay đổi trong trạng thái";
-        public const string INVALID_STATUS = "Trạng thái không hợp lệ";
-
-        // Cart
-        public const string CART_NOT_EXIST = "Giỏ hàng không tồn tại";
-
-        // Cart Item
-        public const string CART_ITEM_NOT_EXIST = "Sản phẩm không tồn tại trong giỏ hàng";
+        public const string USER_NOT_EXIST = "User does not exist";
+        public const string USERNAME_EXIST = "Username exists";
+        public const string WRONG_PASSWORD = "Wrong password";
+        public const string SAME_PASSOWRD = "Old and new passwords are the same";
+        public const string SAME_STATUS = "No change in status";
+        public const string INVALID_STATUS = "Invalid status";
 
         // Product
-        public const string INVALID_QUANTITY = "Số lượng phải lớn hơn 0";
-        public const string PRODUCT_QUANTITY_NOT_ENOUGH = "Số lượng trong giỏ hàng không được vượt quá số lượng còn lại của sản phẩm";
+        public const string INVALID_QUANTITY = "Invalid quantity";
+        public const string PRODUCT_QUANTITY_NOT_ENOUGH = "Not enough product in inventory";
 
         // Query
-        public const string CREATE_FAIL = "Tạo mới thất bại";
-        public const string UPDATE_FAIL = "Cập nhật thất bại";
-        public const string RECORD_NOT_FOUND = "Đối tượng không tồn tại";
+        public const string CREATE_FAIL = "Create failed";
+        public const string UPDATE_FAIL = "Update failed";
+        public const string RECORD_NOT_FOUND = "Record not found";
 
         // Order
-        public const string INVALID_PAYMENT_METHOD = "Phương thức thanh toán không tồn tại hoặc chưa hổ trợ";
-        public const string ORDER_NOT_CONFIRMED = "Order chưa được confirm";
-        public const string INVALID_ORDER_STATUS = "Trạng thái đơn hàng không hợp lệ";
+        public const string INVALID_PAYMENT_METHOD = "Invalid payment";
+        public const string ORDER_NOT_CONFIRMED = "Order is not confirmed";
+        public const string INVALID_ORDER_STATUS = "Invalid order status";
         // Voucher
-        public const string VOUCHER_NOT_ENOUGH = "Voucher đã hết lượt sử dụng";
-        public const string VOUCHER_NOT_EXIST= "Voucher không tồn tại";
+        public const string VOUCHER_NOT_ENOUGH = "Voucher is out of use";
+        public const string VOUCHER_NOT_EXIST= "Voucher does not exist";
 
         // Product Line
-        public const string PRODUCT_INSTOCK_NOT_ENOUGH = "Sản phẩm trong kho không đủ";
+        public const string PRODUCT_INSTOCK_NOT_ENOUGH = "Product instock is not enough";
 
         //Feedback
         public const string NO_COMPLETED_ORDER = "Customer has not purchased the product";

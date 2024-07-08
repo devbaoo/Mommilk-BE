@@ -1,4 +1,5 @@
-﻿namespace Domain.Models.Views
+﻿
+namespace Domain.Models.Views
 {
     public class UserViewModel
     {
@@ -15,5 +16,6 @@
         public string Status { get; set; } = null!;
 
         public DateTime CreateAt { get; set; }
+        public string? Address { get; set; } = null!;
     }
 }

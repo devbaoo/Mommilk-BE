@@ -3,7 +3,6 @@ using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -47,6 +46,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Route("create")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateModel model)
         {
             try

@@ -30,7 +30,9 @@
         public const string INVALID_ORDER_STATUS = "Invalid order status";
         // Voucher
         public const string VOUCHER_NOT_ENOUGH = "Voucher is out of use";
-        public const string VOUCHER_NOT_EXIST= "Voucher does not exist";
+        public const string VOUCHER_NOT_EXIST = "Voucher does not exist";
+        public const string VOUCHER_DUPLICATE = "Voucher code duplicate";
+        public const string VOUCHER_NO_VALUE = "Voucher has no value";
 
         // Product Line
         public const string PRODUCT_INSTOCK_NOT_ENOUGH = "Product instock is not enough";

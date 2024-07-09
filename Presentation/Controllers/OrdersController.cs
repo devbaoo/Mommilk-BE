@@ -91,19 +91,19 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("deliver")]
-        public async Task<IActionResult> DeliverOrder([FromQuery] Guid orderId)
-        {
-            try
-            {
-                return await _orderService.DeliverOrder(orderId);
-            }
-            catch (Exception ex)
-            {
-                return ex.Message.InternalServerError();
-            }
-        }
+        //[HttpPut]
+        //[Route("deliver")]
+        //public async Task<IActionResult> DeliverOrder([FromQuery] Guid orderId)
+        //{
+        //    try
+        //    {
+        //        return await _orderService.DeliverOrder(orderId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.Message.InternalServerError();
+        //    }
+        //}
 
         [HttpPut]
         [Route("complete")]
@@ -121,16 +121,32 @@ namespace Presentation.Controllers
 
         [HttpPut]
         [Route("cancel")]
-        public async Task<IActionResult> CancelOrder([FromQuery] Guid orderId)
+        public async Task<IActionResult> CancelOrder([FromBody] OrderChangeModel model)
         {
             try
             {
-                return await _orderService.CancelOrder(orderId);
+                return await _orderService.CancelOrder(model);
             }
             catch (Exception ex)
             {
                 return ex.Message.InternalServerError();
             }
+        }
+
+        [HttpPut]
+        [Route("delivery-note")]
+        public async Task<IActionResult> NoteDeliveringOrder([FromBody]OrderChangeModel model)
+        {
+            try
+            {
+                return await _orderService.NoteDeliveringOrder(model);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+
+
         }
     }
 }

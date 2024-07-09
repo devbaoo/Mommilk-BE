@@ -17,7 +17,11 @@ public partial class Feedback
 
     public DateTime CreateAt { get; set; }
 
+    public Guid OrderDetailId { get; set; }
+
     public virtual Customer Customer { get; set; } = null!;
+
+    public virtual OrderDetail OrderDetail { get; set; } = null!;
 
     public virtual Product Product { get; set; } = null!;
 }

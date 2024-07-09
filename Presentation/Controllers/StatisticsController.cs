@@ -19,12 +19,26 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Route("revenues")]
-        public async Task<IActionResult> GetProductrevenues([FromBody]ProductRevenueFilterModel model,[FromQuery] PaginationRequestModel pagination)
+        [Route("products")]
+        public async Task<IActionResult> GetProductRevenues([FromBody]ProductRevenueFilterModel model,[FromQuery] PaginationRequestModel pagination)
         {
             try
             {
-                return await _statisticService.GetProductRevenues(model, pagination);
+                return await _statisticService.GetProductRevenues(model);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpPost]
+        [Route("orders")]
+        public async Task<IActionResult> GetOrderSummary([FromQuery] OrderSummaryFilterModel model)
+        {
+            try
+            {
+                return await _statisticService.GetOrderSummary(model);
             }
             catch (Exception ex)
             {

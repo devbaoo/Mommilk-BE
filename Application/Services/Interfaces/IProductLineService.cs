@@ -18,5 +18,7 @@ namespace Application.Services.Interfaces
         Task<IActionResult> ReturnProductLineQuantity(Guid id);
         Task<IActionResult> UpdateProductLine(Guid productId, ProductLineUpdateModel model);
         Task<IActionResult> GetChanges(ProductLineChangeFilterModel model, PaginationRequestModel pagination);
+        Task<bool> CheckProductInventory(ProductLineQuantityChangeModel model);
+        Task<int> GetInStock(Guid productId);
     }
 }

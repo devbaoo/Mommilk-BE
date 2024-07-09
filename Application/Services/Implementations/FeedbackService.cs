@@ -65,7 +65,7 @@ namespace Application.Services.Implementations
             }
             catch (Exception)
             {
-                throw;            
+                throw;
             }
         }
 
@@ -76,7 +76,7 @@ namespace Application.Services.Implementations
                 var feedback = await _feedbackRepository
                     .Where(fb => fb.Id.Equals(id))
                     .FirstOrDefaultAsync();
-                if(feedback == null)
+                if (feedback == null)
                 {
                     return AppErrors.RECORD_NOT_FOUND.NotFound();
                 }
@@ -88,32 +88,25 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> CreateFeedback(Guid customerId, FeedbackCreateModel model)
+        public async Task<bool> CanFeedback(Guid orderDetailId)
         {
             try
             {
-                if(model.Star > 5 && model.Star < 1)
+                var orderDetail = await _orderDetailRepository
+                    .Where(od => od.Id.Equals(orderDetailId))
+                    .FirstOrDefaultAsync();
+                if (orderDetail != null && !orderDetail.HasFeedback)
                 {
-                    return AppErrors.INVALID_STAR_RATING.UnprocessableEntity();
+                    var status = await _orderRepository
+                        .Where(order => order.Id.Equals(orderDetail.OrderId))
+                        .Select(order => order.Status)
+                        .FirstOrDefaultAsync();
+                    if (status != null && status == OrderStatuses.COMPLETED) 
+                    {
+                        return true;
+                    }
                 }
-                if(!HasCompletedOrder(customerId, model.productId).Result)
-                {
-                    return AppErrors.NO_COMPLETED_ORDER.UnprocessableEntity();
-                }
-                if (HasFeedback(customerId, model.productId).Result) 
-                {
-                    return AppErrors.FEEDBACK_ALREADY_EXISTS.UnprocessableEntity();
-                }
-                var feedback = _mapper.Map<Feedback>(model);
-                feedback.ProductId = model.productId;
-                feedback.CustomerId = customerId;
-                _feedbackRepository.Add(feedback);
-                var result = await _unitOfWork.SaveChangesAsync();
-                if(result >0)
-                {
-                    return await GetFeedback(feedback.Id);
-                }
-                return AppErrors.CREATE_FAIL.UnprocessableEntity();
+                return false;
             }
             catch (Exception)
             {
@@ -121,39 +114,38 @@ namespace Application.Services.Implementations
             }
         }
 
-
-        //Check if customer has purchased a product
-        private async Task<bool> HasCompletedOrder(Guid customerId, Guid productId)
+        public async Task<IActionResult> CreateFeedback(FeedbackCreateModel model)
         {
             try
             {
-                return await _orderRepository.GetAll()
-                    .Join(_orderDetailRepository.GetAll(),
-                    order => order.Id,
-                    orderDetail => orderDetail.OrderId,
-                    (order, orderDetail) => new { order.CustomerId, orderDetail.ProductId })
-                    .AnyAsync(x => x.CustomerId == customerId && x.ProductId == productId);
+                var orderDetail = await _orderDetailRepository
+                    .Where(od => od.Id.Equals(model.OrderDetailId))
+                    .FirstOrDefaultAsync();
+                if (orderDetail == null)
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+                if (await CanFeedback(model.OrderDetailId))
+                {
+                    var feedback = _mapper.Map<Feedback>(model);
+                    feedback.ProductId = orderDetail.ProductId;
+                    feedback.CustomerId = model.CustomerId;
+                    _feedbackRepository.Add(feedback);
+                    orderDetail.HasFeedback = true;
+                    _orderDetailRepository.Update(orderDetail);
+                    var result = await _unitOfWork.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return AppNotifications.FEEDBACK_SUCCESSFUL.Ok();
+                    }
+                    return AppErrors.CREATE_FAIL.UnprocessableEntity();
+                }
+                return AppErrors.FEEDBACK_ALREADY_EXISTS.BadRequest();
             }
             catch (Exception)
             {
                 throw;
             }
         }
-
-        //Check if a customer has already given feedback to a product
-        public async Task<bool> HasFeedback(Guid customerId, Guid productId)
-        {
-            try 
-            {
-                return await _feedbackRepository
-                    .Where(fb => fb.CustomerId.Equals(customerId) && fb.ProductId.Equals(productId))
-                    .AnyAsync();
-            }
-            catch (Exception) 
-            {
-                throw;
-            }
-        }
-        
     }
 }

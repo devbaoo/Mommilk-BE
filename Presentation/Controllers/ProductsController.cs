@@ -46,7 +46,6 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateModel model)
         {
             try

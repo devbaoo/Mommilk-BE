@@ -16,6 +16,7 @@ namespace Application.Services.Interfaces
         Task<IActionResult> ConfirmOrder(Guid id);
         Task<IActionResult> DeliverOrder(Guid orderId);
         Task<IActionResult> CompleteOrder(Guid orderId);
-        Task<IActionResult> CancelOrder(Guid id);
+        Task<IActionResult> CancelOrder(OrderChangeModel model);
+        Task<IActionResult> NoteDeliveringOrder(OrderChangeModel model);
     }
 }

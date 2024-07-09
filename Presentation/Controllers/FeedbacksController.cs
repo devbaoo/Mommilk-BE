@@ -48,14 +48,12 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Route("create/")]
-        [Authorize]
+        [Route("create")]
         public async Task<IActionResult> CreateFeedback([FromBody] FeedbackCreateModel model)
         {
             try
             {
-                var auth = this.GetAuthenticatedUser();
-                return await _feedbackService.CreateFeedback(auth.Id, model);
+                return await _feedbackService.CreateFeedback(model);
             }
             catch (Exception ex)
             {
@@ -63,22 +61,22 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("check/{productId}")]
-        [Authorize]
-        public async Task<IActionResult> HasFeedback([FromRoute] Guid productId)
-        {
-            try
-            {
-                var auth = this.GetAuthenticatedUser();
-                bool result = await _feedbackService.HasFeedback(auth.Id, productId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return ex.Message.InternalServerError();
-            }
-        }
+        //[HttpGet]
+        //[Route("check/{productId}")]
+        //[Authorize]
+        //public async Task<IActionResult> HasFeedback([FromRoute] Guid productId)
+        //{
+        //    try
+        //    {
+        //        var auth = this.GetAuthenticatedUser();
+        //        bool result = await _feedbackService.HasFeedback(auth.Id, productId);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.Message.InternalServerError();
+        //    }
+        //}
 
     }
 }

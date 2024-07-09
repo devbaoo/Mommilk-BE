@@ -53,6 +53,14 @@ namespace Common.Extensions
             };
         }
 
+        public static IActionResult Forbidden(this object data)
+        {
+            return new ObjectResult(data)
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            };
+        }
+
         public static IActionResult InternalServerError(this object data)
         {
             return new ObjectResult(data)

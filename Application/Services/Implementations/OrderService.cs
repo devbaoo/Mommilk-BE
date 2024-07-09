@@ -13,6 +13,8 @@ using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
 using Domain.Models.Views;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +29,7 @@ namespace Application.Services.Implementations
         private readonly IProductLineRepository _productLineRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IProductLineService _productLineService;
+        private readonly ICustomerRepository _customerRepository;
 
         public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IProductLineService productLineService) : base(unitOfWork, mapper)
         {
@@ -35,6 +38,7 @@ namespace Application.Services.Implementations
             _voucherRepository = unitOfWork.Voucher;
             _productLineRepository = unitOfWork.ProductLine;
             _orderDetailRepository = unitOfWork.OrderDetail;
+            _customerRepository = unitOfWork.Customer;
             _productLineService = productLineService;
         }
 
@@ -103,6 +107,14 @@ namespace Application.Services.Implementations
         {
             try
             {
+                var customer = await _customerRepository
+                    .Where(cs => cs.Id.Equals(customerId))
+                    .Select(cs => cs.Status)
+                    .FirstOrDefaultAsync();
+                if (customer == null || customer.Equals(CustomerStatuses.INACTIVE)) 
+                {
+                    return AppErrors.INVALID_USER_UNACTIVE.Forbidden();
+                }
                 if(!model.PaymentMethod.Equals(PaymentMethods.VNPAY) && !model.PaymentMethod.Equals(PaymentMethods.CASH))
                 {
                     return AppErrors.INVALID_PAYMENT_METHOD.UnprocessableEntity();
@@ -112,10 +124,22 @@ namespace Application.Services.Implementations
                 {
                     return voucherInvalids.BadRequest();
                 }
+                foreach (var detail in model.OrderDetails) 
+                {
+                    if(!await _productLineService.CheckProductInventory(new ProductLineQuantityChangeModel
+                    {
+                        ProductId = detail.ProductId,
+                        Quantity = detail.Quantity,
+                    }))
+                    {
+                        return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.BadRequest();
+                    }
+                }
                 var order = _mapper.Map<Order>(model);
                 order.CustomerId = customerId;
                 order.IsPayment = false;
                 order.Status = OrderStatuses.PENDING;
+                
                 _orderRepository.Add(order);
 
                 var result = await _unitOfWork.SaveChangesAsync();
@@ -236,24 +260,71 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> CancelOrder(Guid id)
+        public async Task<IActionResult> NoteDeliveringOrder(OrderChangeModel model)
+        {
+            try
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(model.OrderId))
+                    .FirstOrDefaultAsync();
+                if (order != null)
+                {
+                    if (order.Status != OrderStatuses.DELIVERING)
+                    {
+                        return AppErrors.INVALID_STATUS.UnprocessableEntity();
+                    }
+                    if (order.Note == null || order.Note.IsNullOrEmpty())
+                    {
+                        order.Note = model.Note;
+                    }
+                    else
+                    {
+                        order.Note += "\n" + model.Note;
+                    }
+                    _orderRepository.Update(order);
+                    var result = await _unitOfWork.SaveChangesAsync();
+                    if(result > 0) 
+                    {
+                        return AppNotifications.NOTED_DELIVERY.Ok();
+                    }                    
+                }
+                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> CancelOrder(OrderChangeModel model)
         {
             try 
             {
                 var order = await _orderRepository
-                    .Where(o => o.Id.Equals(id))
+                    .Where(o => o.Id.Equals(model.OrderId))
                     .FirstOrDefaultAsync();
                 if(order != null)
                 {
-                    if(order.Status.Equals(OrderStatuses.CONFIRMED) || order.Status.Equals(OrderStatuses.DELIVERING))
+                    //if(order.Status.Equals(OrderStatuses.CONFIRMED) || order.Status.Equals(OrderStatuses.DELIVERING))
+                    //{
+                    //    var result = await _productLineService.ReturnProductLineQuantity(order.Id);
+                    //    if(result is ObjectResult objectResult && objectResult.StatusCode==422)
+                    //    {
+                    //        return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+                    //    }
+                    //}
+                    if(order.Status != OrderStatuses.PENDING)
                     {
-                        var result = await _productLineService.ReturnProductLineQuantity(order.Id);
-                        if(result is ObjectResult objectResult && objectResult.StatusCode==422)
-                        {
-                            return AppErrors.UPDATE_FAIL.UnprocessableEntity();
-                        }
+                        return AppErrors.INVALID_STATUS.UnprocessableEntity();
                     }
                     order.Status = OrderStatuses.CANCELED;
+                    if (order.Note == null || order.Note.IsNullOrEmpty()) 
+                    {
+                        order.Note = model.Note;
+                    } else
+                    {
+                        order.Note += "\n" + model.Note;
+                    }
                     _orderRepository.Update(order);
                     await _unitOfWork.SaveChangesAsync();
                     return AppNotifications.CANCELED_ORDER.Ok();
@@ -303,10 +374,12 @@ namespace Application.Services.Implementations
                 var errors = new List<string>();
                 foreach (var item in order.OrderVouchers)
                 {
-                    var voucher = await _voucherRepository.Where(x => x.Id.Equals(item.VoucherId)).FirstOrDefaultAsync();
+                    var voucher = await _voucherRepository
+                        .Where(x => x.Id.Equals(item.VoucherId) && x.From <= DateTimeHelper.VnNow && x.To >= DateTimeHelper.VnNow)
+                        .FirstOrDefaultAsync();
                     if (voucher != null)
                     {
-                        if (voucher.Quantity == 0)
+                        if (voucher.Quantity < 1)
                         {
                             errors.Add($"{AppErrors.VOUCHER_NOT_ENOUGH}: {voucher.Name}");
                         }

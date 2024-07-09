@@ -11,6 +11,7 @@ namespace Application.Services.Interfaces
 {
     public interface IStatisticService
     {
-        Task<IActionResult> GetProductRevenues(ProductRevenueFilterModel model, PaginationRequestModel pagination);
+        Task<IActionResult> GetProductRevenues(ProductRevenueFilterModel model);
+        Task<IActionResult> GetOrderSummary(OrderSummaryFilterModel model);
     }
 }

@@ -269,7 +269,6 @@ namespace Application.Services.Implementations
                     .FirstOrDefaultAsync();
                 if (order != null)
                 {
-<<<<<<< HEAD
                     if (order.Status != OrderStatuses.DELIVERING && order.Status != OrderStatuses.CONFIRMED)
                     {
                         return AppErrors.INVALID_STATUS.UnprocessableEntity();
@@ -285,20 +284,6 @@ namespace Application.Services.Implementations
                         }
                     }
                     order.Status = OrderStatuses.DELIVERING;
-=======
-                    if (order.Status != OrderStatuses.DELIVERING)
-                    {
-                        return AppErrors.INVALID_STATUS.UnprocessableEntity();
-                    }
-                    if (order.Note == null || order.Note.IsNullOrEmpty())
-                    {
-                        order.Note = model.Note;
-                    }
-                    else
-                    {
-                        order.Note += "\n" + model.Note;
-                    }
->>>>>>> 24a3ff887ea449e335ca787f380f831db824fbd8
                     _orderRepository.Update(order);
                     var result = await _unitOfWork.SaveChangesAsync();
                     if(result > 0) 

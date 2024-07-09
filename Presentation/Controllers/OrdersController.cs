@@ -126,23 +126,6 @@ namespace Presentation.Controllers
             try
             {
                 return await _orderService.CancelOrder(model);
-<<<<<<< HEAD
-=======
-            }
-            catch (Exception ex)
-            {
-                return ex.Message.InternalServerError();
-            }
-        }
-
-        [HttpPut]
-        [Route("delivery-note")]
-        public async Task<IActionResult> NoteDeliveringOrder([FromBody]OrderChangeModel model)
-        {
-            try
-            {
-                return await _orderService.NoteDeliveringOrder(model);
->>>>>>> 24a3ff887ea449e335ca787f380f831db824fbd8
             }
             catch (Exception ex)
             {

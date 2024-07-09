@@ -25,7 +25,9 @@ public partial class Order
 
     public DateTime? CreateAt { get; set; }
 
-    public int? Discount { get; set; }
+    public int Discount { get; set; }
+
+    public string? Note { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;
 

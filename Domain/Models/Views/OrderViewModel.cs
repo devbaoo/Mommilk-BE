@@ -23,6 +23,7 @@
         public DateTime? CreateAt { get; set; }
 
         public int? Discount { get; set; }
+        public string? Note { get; set; }
 
         public ICollection<OrderDetailViewModel> OrderDetails { get; set; } = new List<OrderDetailViewModel>();
     }

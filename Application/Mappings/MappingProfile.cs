@@ -6,8 +6,6 @@ using Domain.Models.Authentications;
 using Domain.Models.Creates;
 using Domain.Models.Updates;
 using Domain.Models.Views;
-using Google.Apis.Storage.v1;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Application.Mappings
 {
@@ -80,7 +78,10 @@ namespace Application.Mappings
                 .ForMember(dest => dest.Sold, opt => opt.MapFrom(src =>
                 src.OrderDetails.Where(od => od.Order.Status.Equals(OrderStatuses.COMPLETED)).Sum(od => od.Quantity)))
                 .ForMember(dest => dest.Revenue, opt => opt.MapFrom(src =>
-                src.OrderDetails.Where(od => od.Order.Status.Equals(OrderStatuses.COMPLETED)).Sum(od => od.Price)));
+                src.OrderDetails.Where(od => od.Order.Status.Equals(OrderStatuses.COMPLETED)).Sum(od => od.Price)))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => 
+                src.Feedbacks.Any() ? Math.Round(src.Feedbacks.Average(f => (double)f.Star), 1) : 0));
+
 
             // Product Category
             CreateMap<ProductCategory, ProductCategoryViewModel>();

@@ -312,5 +312,44 @@ namespace Application.Services.Implementations
                 throw; 
             }
         }
+
+        public async Task<bool> CheckProductInventory(ProductLineQuantityChangeModel model)
+        {
+            try
+            {
+                var inStock = await GetInStock(model.ProductId);
+                if (model.Quantity > inStock)
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> GetInStock(Guid productId)
+        {
+            try
+            {
+                var product = await _productRepository
+                    .Where(pr => pr.Id.Equals(productId) && pr.Status.Equals(ProductStatuses.ACTIVE))
+                    .FirstOrDefaultAsync();
+                if (product == null)
+                {
+                    return 0;
+                }
+                var inStock = await _productLineRepository
+                    .Where(pl => pl.ProductId.Equals(productId) && pl.Quantity > 0 && pl.ExpiredAt > DateTimeHelper.VnNow)
+                    .SumAsync(pl => pl.Quantity);
+                return inStock;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

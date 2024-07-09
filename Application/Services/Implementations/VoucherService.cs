@@ -2,6 +2,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Extensions;
+using Common.Helpers;
 using Data;
 using Data.Repositories.Implementations;
 using Data.Repositories.Interfaces;
@@ -89,6 +90,10 @@ namespace Application.Services.Implementations
         {
             try
             {
+                var check = await ValidateNewVoucher(model);
+                if (check is ObjectResult objectResult && objectResult.StatusCode != 200) {
+                    return check;
+                }
                 var voucher = _mapper.Map<Voucher>(model);
                 _voucherRepository.Add(voucher);
                 var result = await _unitOfWork.SaveChangesAsync();
@@ -108,22 +113,64 @@ namespace Application.Services.Implementations
         {
             try
             {
-                var voucher = await _voucherRepository
+                var target = await _voucherRepository
                 .Where(v => v.Id.Equals(id))
                 .FirstOrDefaultAsync();
-                if (voucher == null)
+
+                if (target == null)
                 {
-                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                    return AppErrors.VOUCHER_NOT_ENOUGH.NotFound();
                 }
-                _mapper.Map(model, voucher);
-                _voucherRepository.Update(voucher);
+                if (model.From >= model.To || model.From < DateTimeHelper.VnNow)
+                {
+                    return AppErrors.INVALID_DATE.UnprocessableEntity();
+                }
+                if (await _voucherRepository
+                    .Where(v => v.Code.Equals(model.Code))
+                    .AnyAsync() && target.Code != model.Code)
+                {
+                    return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
+                }
+                if (model.Value < 1)
+                {
+                    return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
+                }
+
+                _mapper.Map(model, target);
+                _voucherRepository.Update(target);
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result > 0)
                 {
                     return await GetVoucher(id);
                 }
                 return AppErrors.UPDATE_FAIL.UnprocessableEntity();
-            } 
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private async Task<IActionResult> ValidateNewVoucher(VoucherCreateModel model)
+        {
+            try
+            {
+                if (model.From >= model.To || model.From < DateTimeHelper.VnNow)
+                {
+                    return AppErrors.INVALID_DATE.UnprocessableEntity();
+                }
+                if (await _voucherRepository
+                    .Where(v => v.Code.Equals(model.Code))
+                    .AnyAsync())
+                {
+                    return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
+                }
+                if (model.Value < 1)
+                {
+                    return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
+                }
+                return "Valid".Ok();
+            }
             catch (Exception)
             {
                 throw;

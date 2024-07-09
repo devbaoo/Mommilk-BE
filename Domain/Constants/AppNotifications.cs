@@ -7,5 +7,7 @@
         public const string CONFIRMED_ORDER = "Confirm đơn hàng thành công";
         public const string CANCELED_ORDER = "Đơn hàng hủy thành công";
         public const string DELIVERING_ORDER = "Đơn hàng sẽ được vận chuyển";
+        public const string FEEDBACK_SUCCESSFUL = "Successful feedback";
+        public const string NOTED_DELIVERY = "Delivery noted";
     }
 }

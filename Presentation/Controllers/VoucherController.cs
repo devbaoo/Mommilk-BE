@@ -33,6 +33,20 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [Route("get-valid")]
+        public async Task<IActionResult> GetValidVouchers()
+        {
+            try
+            {
+                return await _voucherService.GetValidVouchers();
+            }
+            catch (Exception ex)
+            {
+                return ex.Message.InternalServerError();
+            }
+        }
+
+        [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetVoucher([FromRoute] Guid id)
         {

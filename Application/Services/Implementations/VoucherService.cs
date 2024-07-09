@@ -66,6 +66,22 @@ namespace Application.Services.Implementations
             return AppErrors.VOUCHER_NOT_EXIST.NotFound();
         }
 
+        public async Task<IActionResult> GetValidVouchers()
+        {
+            try
+            {
+                var vouchers = await _voucherRepository
+                .Where(v => v.Status.Equals(VoucherStatuses.ACTIVE) && v.To > DateTimeHelper.VnNow && v.Quantity > 0)
+                .ProjectTo<VoucherViewModel>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+                return vouchers.Ok();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<IActionResult> GetVoucher(Guid id)
         {
             try
@@ -120,10 +136,6 @@ namespace Application.Services.Implementations
                 if (target == null)
                 {
                     return AppErrors.VOUCHER_NOT_ENOUGH.NotFound();
-                }
-                if (model.From >= model.To || model.From < DateTimeHelper.VnNow)
-                {
-                    return AppErrors.INVALID_DATE.UnprocessableEntity();
                 }
                 if (await _voucherRepository
                     .Where(v => v.Code.Equals(model.Code))

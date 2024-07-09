@@ -12,5 +12,6 @@ namespace Application.Services.Interfaces
         Task<IActionResult> GetVoucher(Guid id);
         Task<IActionResult> CreateVoucher(VoucherCreateModel model);
         Task<IActionResult> UpdateVoucher(Guid id, VoucherUpdateModel model);
+        Task<IActionResult> GetValidVouchers();
     }
 }

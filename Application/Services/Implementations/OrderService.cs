@@ -166,7 +166,7 @@ namespace Application.Services.Implementations
                 .FirstOrDefaultAsync();
                 if (order != null)
                 {
-                    if (order.Status == OrderStatuses.PENDING || order.Status == OrderStatuses.PAID)
+                    if (order.Status == OrderStatuses.PENDING || order.Status == OrderStatuses.PAID || order.Status == OrderStatuses.DELIVERING)
                     {
                         var orderDetails = await _orderDetailRepository
                         .Where(od => od.OrderId.Equals(id))
@@ -308,26 +308,35 @@ namespace Application.Services.Implementations
                     .FirstOrDefaultAsync();
                 if(order != null)
                 {
-                    //if(order.Status.Equals(OrderStatuses.CONFIRMED) || order.Status.Equals(OrderStatuses.DELIVERING))
-                    //{
-                    //    var result = await _productLineService.ReturnProductLineQuantity(order.Id);
-                    //    if(result is ObjectResult objectResult && objectResult.StatusCode==422)
-                    //    {
-                    //        return AppErrors.UPDATE_FAIL.UnprocessableEntity();
-                    //    }
-                    //}
-                    if(order.Status != OrderStatuses.PENDING)
+                    if (order.PaymentMethod == PaymentMethods.VNPAY)
                     {
-                        return AppErrors.INVALID_STATUS.UnprocessableEntity();
+                        return AppErrors.INVALID_OPERATION.BadRequest();
                     }
-                    order.Status = OrderStatuses.CANCELED;
-                    if (order.Note == null || order.Note.IsNullOrEmpty()) 
+                    if (!order.Status.Equals(OrderStatuses.PENDING) && !order.Status.Equals(OrderStatuses.CONFIRMED) && !order.Status.Equals(OrderStatuses.DELIVERING))
+                    {
+                        return AppErrors.INVALID_STATUS.BadRequest();
+                    }
+
+                    //return product
+                    if (order.Status.Equals(OrderStatuses.CONFIRMED) || order.Status.Equals(OrderStatuses.DELIVERING))
+                    {
+                        var result = await _productLineService.ReturnProductLineQuantity(order.Id);
+                        if (result is ObjectResult objectResult && objectResult.StatusCode == 422)
+                        {
+                            order.Note += "/n" + AppErrors.RETURN_FAILED;
+                        }
+                    }
+
+                    //add note
+                    if (order.Note == null || order.Note.IsNullOrEmpty())
                     {
                         order.Note = model.Note;
                     } else
                     {
                         order.Note += "\n" + model.Note;
                     }
+                    
+                    order.Status = OrderStatuses.CANCELED;
                     _orderRepository.Update(order);
                     await _unitOfWork.SaveChangesAsync();
                     return AppNotifications.CANCELED_ORDER.Ok();

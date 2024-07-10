@@ -43,7 +43,7 @@ namespace Application.Services.Implementations
                     .ToListAsync();
                 return productLines.ToPaged(pagination, totalRows).Ok();
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }
@@ -77,12 +77,13 @@ namespace Application.Services.Implementations
                     .Where(x => x.Id.Equals(id))
                     .ProjectTo<ProductLineViewModel>(_mapper.ConfigurationProvider)
                     .FirstOrDefaultAsync();
-                if (productLine == null) {
+                if (productLine == null)
+                {
                     return AppErrors.RECORD_NOT_FOUND.NotFound();
                 }
                 return productLine.Ok();
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }
@@ -92,14 +93,14 @@ namespace Application.Services.Implementations
         {
             try
             {
-                if (model.ExpiredAt <= DateTimeHelper.VnNow) 
+                if (model.ExpiredAt <= DateTimeHelper.VnNow)
                 {
                     return AppErrors.INVALID_DATE.UnprocessableEntity();
                 }
                 var product = await _productRepository
                     .Where(p => p.Id.Equals(productId))
                     .FirstOrDefaultAsync();
-                if (product == null) 
+                if (product == null)
                 {
                     return AppErrors.RECORD_NOT_FOUND.NotFound();
                 }
@@ -107,7 +108,7 @@ namespace Application.Services.Implementations
                 productLine.ProductId = productId;
                 _productLineRepository.Add(productLine);
                 var result = await _unitOfWork.SaveChangesAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     var change = new ProductLineChange
                     {
@@ -120,10 +121,10 @@ namespace Application.Services.Implementations
                     };
                     _productLineChangeRepository.Add(change);
                     var changed = await _unitOfWork.SaveChangesAsync();
-                    if (changed > 0) 
+                    if (changed > 0)
                     {
                         return await GetProductLine(productLine.Id);
-                    }                    
+                    }
                 }
                 return AppErrors.CREATE_FAIL.UnprocessableEntity();
             }
@@ -188,7 +189,8 @@ namespace Application.Services.Implementations
                     int toReduce = productLineTarget.Quantity;
 
                     int availableInventory = productLines.Sum(pl => pl.Quantity);
-                    if (toReduce > availableInventory) {
+                    if (toReduce > availableInventory)
+                    {
                         return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.UnprocessableEntity();
                     }
 
@@ -235,7 +237,7 @@ namespace Application.Services.Implementations
 
                             productLine.Quantity = 0;
                         }
-                        
+
                     }
                 }
 
@@ -256,12 +258,13 @@ namespace Application.Services.Implementations
                 var changes = await _productLineChangeRepository
                     .Where(c => c.Purpose.Equals("purchase: " + id.ToString().ToLower()))
                     .ToListAsync();
-                foreach(var change in changes)
+                foreach (var change in changes)
                 {
                     var productLine = await _productLineRepository
                         .Where(pl => pl.Id.Equals(change.ProductLineId))
                         .FirstOrDefaultAsync();
-                    if (productLine == null) {
+                    if (productLine == null)
+                    {
                         return AppErrors.RECORD_NOT_FOUND.NotFound();
                     }
                     productLine.Quantity += change.Quantity;
@@ -276,8 +279,8 @@ namespace Application.Services.Implementations
                     };
                     _productLineChangeRepository.Add(productLineChange);
                     _productLineRepository.Update(productLine);
-                }        
-                
+                }
+
                 await _unitOfWork.SaveChangesAsync();
                 return "Trả hàng kho thành công".Ok();
             }
@@ -307,9 +310,9 @@ namespace Application.Services.Implementations
                 }
                 return AppErrors.UPDATE_FAIL.UnprocessableEntity();
             }
-            catch (Exception) 
-            { 
-                throw; 
+            catch (Exception)
+            {
+                throw;
             }
         }
 

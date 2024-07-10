@@ -6,6 +6,7 @@
         public const string INVALID_USER_UNACTIVE = "User is inactive";
         public const string NO_CHANGE = "No change in request provided";
         public const string INVALID_DATE = "Invalid date";
+        public const string INVALID_OPERATION = "Invalid operation";
 
         // User
         public const string USER_NOT_EXIST = "User does not exist";
@@ -28,6 +29,7 @@
         public const string INVALID_PAYMENT_METHOD = "Invalid payment";
         public const string ORDER_NOT_CONFIRMED = "Order is not confirmed";
         public const string INVALID_ORDER_STATUS = "Invalid order status";
+
         // Voucher
         public const string VOUCHER_NOT_ENOUGH = "Voucher is out of use";
         public const string VOUCHER_NOT_EXIST = "Voucher does not exist";
@@ -36,6 +38,7 @@
 
         // Product Line
         public const string PRODUCT_INSTOCK_NOT_ENOUGH = "Product instock is not enough";
+        public const string RETURN_FAILED = "Trả hàng về kho lỗi";
 
         //Feedback
         public const string NO_COMPLETED_ORDER = "Customer has not purchased the product";

@@ -93,6 +93,10 @@ namespace Application.Services.Implementations
         {
             try
             {
+                if (model.Quantity < 0)
+                {
+                    return AppErrors.INVALID_QUANTITY.UnprocessableEntity();
+                }
                 if (model.ExpiredAt <= DateTimeHelper.VnNow)
                 {
                     return AppErrors.INVALID_DATE.UnprocessableEntity();
@@ -294,6 +298,10 @@ namespace Application.Services.Implementations
         {
             try
             {
+                if(model.Quantity < 0)
+                {
+                    return AppErrors.INVALID_QUANTITY.UnprocessableEntity();
+                }
                 var productLine = await _productLineRepository
                 .Where(p => p.Id.Equals(productId))
                 .FirstOrDefaultAsync();

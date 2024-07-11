@@ -3,6 +3,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Extensions;
 using Data;
+using Data.Repositories.Implementations;
 using Data.Repositories.Interfaces;
 using Domain.Constants;
 using Domain.Entities;
@@ -27,12 +28,15 @@ namespace Application.Services.Implementations
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly ICustomerRepository _customerRepository;
+
 
         public FeedbackService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
             _feedbackRepository = unitOfWork.Feedback;
             _orderRepository = unitOfWork.Order;
             _orderDetailRepository = unitOfWork.OrderDetail;
+            _customerRepository = unitOfWork.Customer;
         }
 
         public async Task<IActionResult> GetFeedbacks(FeedbackFilterModel filter, PaginationRequestModel pagination)
@@ -114,10 +118,18 @@ namespace Application.Services.Implementations
             }
         }
 
-        public async Task<IActionResult> CreateFeedback(FeedbackCreateModel model)
+        public async Task<IActionResult> CreateFeedback(Guid customerId, FeedbackCreateModel model)
         {
             try
             {
+                var customer = await _customerRepository
+                    .Where(cs => cs.Id.Equals(customerId))
+                    .Select(cs => cs.Status)
+                    .FirstOrDefaultAsync();
+                if (customer == null || customer.Equals(CustomerStatuses.INACTIVE))
+                {
+                    return AppErrors.INVALID_USER_UNACTIVE.Forbidden();
+                }
                 var orderDetail = await _orderDetailRepository
                     .Where(od => od.Id.Equals(model.OrderDetailId))
                     .FirstOrDefaultAsync();

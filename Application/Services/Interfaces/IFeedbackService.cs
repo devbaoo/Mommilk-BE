@@ -10,6 +10,6 @@ namespace Application.Services.Interfaces
         Task<IActionResult> GetFeedbacks(FeedbackFilterModel filter, PaginationRequestModel pagination);
         Task<IActionResult> GetFeedback(Guid id);
         Task<bool> CanFeedback(Guid orderDetailId);
-        Task<IActionResult> CreateFeedback(FeedbackCreateModel model);
+        Task<IActionResult> CreateFeedback(Guid customerId, FeedbackCreateModel model);
     }
 }

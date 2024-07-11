@@ -49,11 +49,13 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [Route("create")]
+        [Authorize]
         public async Task<IActionResult> CreateFeedback([FromBody] FeedbackCreateModel model)
         {
             try
             {
-                return await _feedbackService.CreateFeedback(model);
+                var auth = this.GetAuthenticatedUser();
+                return await _feedbackService.CreateFeedback(auth.Id, model);
             }
             catch (Exception ex)
             {

@@ -77,6 +77,7 @@ namespace Application.Services.Implementations
                 }
                 var totalRows = query.Count();
                 var result = await query
+                    .OrderByDescending(o => o.CreateAt)
                     .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
                     .Paginate(pagination)
                     .ToListAsync();

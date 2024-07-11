@@ -44,6 +44,7 @@
         public const string NO_COMPLETED_ORDER = "Customer has not purchased the product";
         public const string FEEDBACK_ALREADY_EXISTS = "Customer has already given a feedback";
         public const string INVALID_STAR_RATING = "Invalid ratings (0 < Star < 5)";
+        public const string USER_CANNOT_FEEDBACK = "User cannot feedback / Order has not been completed for feedback";
 
     }
 }

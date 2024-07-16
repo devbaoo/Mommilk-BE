@@ -1,10 +1,11 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
+using Domain.Constants;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
-using Microsoft.AspNetCore.Http;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -61,6 +62,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserRoles.STAFF)]
         public async Task<IActionResult> CreateVoucher([FromBody] VoucherCreateModel model)
         {
             try
@@ -74,11 +76,13 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("{id}")]
         public async Task<IActionResult> UpdateVoucher([FromRoute] Guid id, [FromBody] VoucherUpdateModel model)
         {
             try
             {
+                var auth = this.GetAuthenticatedUser();
                 return await _voucherService.UpdateVoucher(id, model);
             }
             catch (Exception ex)

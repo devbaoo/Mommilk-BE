@@ -55,6 +55,7 @@ public partial class SuaMe88Context : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Password).HasMaxLength(256);
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Username).HasMaxLength(256);
         });
 

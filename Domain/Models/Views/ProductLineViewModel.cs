@@ -18,7 +18,5 @@ namespace Domain.Models.Views
         public string? ExpiredAt { get; set; }
 
         public int Quantity { get; set; }
-
-        public int? PromotionPrice { get; set; }
     }
 }

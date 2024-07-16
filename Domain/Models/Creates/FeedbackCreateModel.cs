@@ -11,6 +11,5 @@ namespace Domain.Models.Creates
         public string? Message { get; set; }
         public int Star { get; set; }
         public Guid OrderDetailId { get; set; }
-        public Guid CustomerId { get; set; }
     }
 }

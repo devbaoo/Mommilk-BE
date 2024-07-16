@@ -10,7 +10,7 @@ namespace Domain.Models.Views
     {
         public Guid Id { get; set; }
 
-        public DateTime CreateAt { get; set; }
+        public string CreateAt { get; set; }
 
         public Guid ProductLineId { get; set; }
 

@@ -19,8 +19,6 @@ namespace Domain.Models.Creates
 
         public int Price { get; set; }
 
-        public int? PromotionPrice { get; set; }
-
         public ICollection<ProductCategoryCreateModel> ProductCategories { get; set; } = new List<ProductCategoryCreateModel>();
     }
 }

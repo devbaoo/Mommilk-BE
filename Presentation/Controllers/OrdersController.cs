@@ -1,5 +1,6 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
+using Domain.Constants;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
@@ -22,7 +23,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(UserRoles.CUSTOMER)]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateModel model)
         {
             try
@@ -64,6 +65,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderStatusUpdateModel model)
         {
@@ -78,6 +80,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("confirm")]
         public async Task<IActionResult> ConfirmOrder([FromQuery] Guid orderId)
         {
@@ -106,6 +109,7 @@ namespace Presentation.Controllers
         //}
 
         [HttpPut]
+        [Authorize("staff", "customer")]
         [Route("complete")]
         public async Task<IActionResult> CompleteOrder([FromQuery] Guid orderId)
         {
@@ -120,6 +124,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize("staff", "customer")]
         [Route("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderChangeModel model)
         {
@@ -134,6 +139,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("delivery-note")]
         public async Task<IActionResult> NoteDeliveringOrder([FromBody]OrderChangeModel model)
         {

@@ -1,8 +1,10 @@
 ﻿using Application.Services.Interfaces;
+using Domain.Constants;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -51,6 +53,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserRoles.STAFF)]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateModel model)
         {
             try
@@ -64,6 +67,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("{id}")]
         public async Task<IActionResult> UpdateCategory([FromRoute] Guid id ,[FromBody] CategoryUpdateModel model)
         {

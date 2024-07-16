@@ -16,8 +16,6 @@ namespace Domain.Models.Updates
 
         public int? Price { get; set; }
 
-        public int? PromotionPrice { get; set; }
-
         public string? Status { get; set; }
     }
 }

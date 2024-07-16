@@ -61,6 +61,14 @@ namespace Common.Extensions
             };
         }
 
+        public static IActionResult NotAcceptable(this object data)
+        {
+            return new ObjectResult(data)
+            {
+                StatusCode = StatusCodes.Status406NotAcceptable
+            };
+        }
+
         public static IActionResult InternalServerError(this object data)
         {
             return new ObjectResult(data)

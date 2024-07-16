@@ -122,14 +122,14 @@ namespace Application.Services.Implementations
         {
             try
             {
-                var customer = await _customerRepository
-                    .Where(cs => cs.Id.Equals(customerId))
-                    .Select(cs => cs.Status)
-                    .FirstOrDefaultAsync();
-                if (customer == null || customer.Equals(CustomerStatuses.INACTIVE))
-                {
-                    return AppErrors.INVALID_USER_UNACTIVE.Forbidden();
-                }
+                //var customer = await _customerRepository
+                //    .Where(cs => cs.Id.Equals(customerId))
+                //    .Select(cs => cs.Status)
+                //    .FirstOrDefaultAsync();
+                //if (customer == null || customer.Equals(CustomerStatuses.INACTIVE))
+                //{
+                //    return AppErrors.INVALID_USER_UNACTIVE.Forbidden();
+                //}
                 var orderDetail = await _orderDetailRepository
                     .Where(od => od.Id.Equals(model.OrderDetailId))
                     .FirstOrDefaultAsync();
@@ -141,7 +141,7 @@ namespace Application.Services.Implementations
                 {
                     var feedback = _mapper.Map<Feedback>(model);
                     feedback.ProductId = orderDetail.ProductId;
-                    feedback.CustomerId = model.CustomerId;
+                    feedback.CustomerId = customerId;
                     _feedbackRepository.Add(feedback);
                     orderDetail.HasFeedback = true;
                     _orderDetailRepository.Update(orderDetail);

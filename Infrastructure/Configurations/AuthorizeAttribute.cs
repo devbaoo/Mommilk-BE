@@ -1,4 +1,5 @@
-﻿using Domain.Models.Authentications;
+﻿using Domain.Constants;
+using Domain.Models.Authentications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -22,11 +23,16 @@ namespace Infrastructure.Configurations
             {
                 context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
             }
+            else if(auth.Status.Equals(UserStatuses.INACTIVE))
+                {
+                context.Result = new JsonResult(new { message = "Account disabled" }) { StatusCode = StatusCodes.Status406NotAcceptable };
+            }
             else
             {
+                
                 var role = auth.Role;
                 var isValid = false;
-
+                
                 if (Roles == null || Roles != null && Roles.Count == 0 || Roles != null && Roles.Contains(role.ToLower()))
                 {
                     isValid = true;

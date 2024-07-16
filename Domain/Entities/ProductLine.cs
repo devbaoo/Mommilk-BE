@@ -15,8 +15,6 @@ public partial class ProductLine
 
     public DateTime ExpiredAt { get; set; }
 
-    public int? PromotionPrice { get; set; }
-
     public virtual Product Product { get; set; } = null!;
 
     public virtual ICollection<ProductLineChange> ProductLineChanges { get; set; } = new List<ProductLineChange>();

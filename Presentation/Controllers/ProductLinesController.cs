@@ -1,9 +1,11 @@
 ﻿using Application.Services.Interfaces;
 using Common.Extensions;
+using Domain.Constants;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -20,6 +22,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(UserRoles.STAFF)]
         [Route("{productId}")]
         public async Task<IActionResult> GetProductLines([FromRoute] Guid productId, [FromQuery] PaginationRequestModel pagination)
         {
@@ -34,6 +37,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(UserRoles.STAFF)]
         [Route("get-single/{productLineId}")]
         public async Task<IActionResult> GetProductLine([FromRoute] Guid productLineId)
         {
@@ -48,6 +52,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize(UserRoles.STAFF)]
         [Route("get-valid/{productId}")]
         public async Task<IActionResult> GetValidProductLines([FromRoute] Guid productId, [FromQuery] PaginationRequestModel pagination)
         {
@@ -62,6 +67,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateProductLine([FromRoute] Guid id, [FromBody] ProductLineUpdateModel model)
         {
@@ -75,6 +81,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserRoles.STAFF)]
         [Route("create/{productId}")]
         public async Task<IActionResult> CreateProductLine([FromRoute] Guid productId, [FromBody] ProductLineCreateModel model)
         {
@@ -89,6 +96,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserRoles.STAFF)]
         [Route("changes/filter")]
         public async Task<IActionResult> GetChanges([FromBody] ProductLineChangeFilterModel model, [FromQuery] PaginationRequestModel pagination)
         {
@@ -116,7 +124,5 @@ namespace Presentation.Controllers
         //        return ex.Message.InternalServerError();
         //    }
         //}
-
-        
     }
 }

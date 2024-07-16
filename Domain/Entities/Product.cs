@@ -25,8 +25,6 @@ public partial class Product
 
     public int Price { get; set; }
 
-    public int? PromotionPrice { get; set; }
-
     public string Status { get; set; } = null!;
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();

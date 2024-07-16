@@ -69,7 +69,7 @@ namespace Application.Services.Implementations
                 }
                 if (customer.Status.Equals(CustomerStatuses.INACTIVE))
                 {
-                    return AppErrors.INVALID_USER_UNACTIVE.BadRequest();
+                    return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
                 }
                 var auth = _mapper.Map<AuthModel>(customer);
                 auth.Role = UserRoles.CUSTOMER;
@@ -138,7 +138,7 @@ namespace Application.Services.Implementations
                 }
                 if (staff.Status.Equals(StaffStatuses.INACTIVE))
                 {
-                    return AppErrors.INVALID_USER_UNACTIVE.BadRequest();
+                    return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
                 }
                 var auth = _mapper.Map<AuthModel>(staff);
                 auth.Role = UserRoles.STAFF;
@@ -219,6 +219,30 @@ namespace Application.Services.Implementations
                     {
                         customer.Role = UserRoles.CUSTOMER;
                         return customer;
+                    }
+                }
+                if (_staffRepository.Any(x => x.Id.Equals(id)))
+                {
+                    var staff = await _staffRepository
+                        .Where(st => st.Id.Equals(id))
+                        .ProjectTo<AuthModel>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync();
+                    if (staff != null)
+                    {
+                        staff.Role = UserRoles.STAFF;
+                        return staff;
+                    }
+                }
+                if (_adminRepository.Any(x => x.Id.Equals(id)))
+                {
+                    var admin = await _adminRepository
+                        .Where(ad => ad.Id.Equals(id))
+                        .ProjectTo<AuthModel>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync();
+                    if(admin != null)
+                    {
+                        admin.Role = UserRoles.ADMIN;
+                        return admin;
                     }
                 }
                 return null!;

@@ -18,8 +18,6 @@ namespace Domain.Models.Views
 
         public int Price { get; set; }
 
-        public int? PromotionPrice { get; set; }
-
         public int InStock { get; set; }
 
         public int Sold { get; set; }

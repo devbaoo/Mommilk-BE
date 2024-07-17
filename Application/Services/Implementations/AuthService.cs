@@ -18,20 +18,13 @@ using System.Text;
 
 namespace Application.Services.Implementations
 {
-    public class AuthService : BaseService, IAuthService
+    public class AuthService(IUnitOfWork unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings)
+        : BaseService(unitOfWork, mapper), IAuthService
     {
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IAdminRepository _adminRepository;
-        private readonly IStaffRepository _staffRepository;
-        private readonly AppSettings _appSettings;
-
-        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper)
-        {
-            _appSettings = appSettings.Value;
-            _customerRepository = unitOfWork.Customer;
-            _adminRepository = unitOfWork.Admin;
-            _staffRepository = unitOfWork.Staff;
-        }
+        private readonly ICustomerRepository _customerRepository = unitOfWork.Customer;
+        private readonly IAdminRepository _adminRepository = unitOfWork.Admin;
+        private readonly IStaffRepository _staffRepository = unitOfWork.Staff;
+        private readonly AppSettings _appSettings = appSettings.Value;
 
         public async Task<IActionResult> Authenticate(CertificateModel certificate)
         {
@@ -59,150 +52,122 @@ namespace Application.Services.Implementations
 
         private async Task<IActionResult> AuthenticateCustomer(CertificateModel certificate)
         {
-            try
+            var customer = await _customerRepository.Where(x => x.Username.Equals(certificate.Username)
+                                                                && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
+            if (customer == null)
             {
-                var customer = await _customerRepository.Where(x => x.Username.Equals(certificate.Username)
-                                        && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
-                if (customer == null)
-                {
-                    return AppErrors.INVALID_CERTIFICATE.BadRequest();
-                }
-                if (customer.Status.Equals(CustomerStatuses.INACTIVE))
-                {
-                    return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
-                }
-                var auth = _mapper.Map<AuthModel>(customer);
-                auth.Role = UserRoles.CUSTOMER;
-                var accessToken = GenerateJwtToken(auth);
-                return new AuthViewModel
-                {
-                    AccessToken = accessToken,
-                    User = new UserViewModel
-                    {
-                        Id = customer.Id,
-                        Username = customer.Username,
-                        Name = customer.Name,
-                        Phone = customer.Phone,
-                        Role = UserRoles.CUSTOMER,
-                        Status = customer.Status,
-                        CreateAt = customer.CreateAt,
-                        Address = customer.Address,
-                    }
-                }.Ok();
+                return AppErrors.INVALID_CERTIFICATE.BadRequest();
             }
-            catch (Exception)
+            if (customer.Status.Equals(CustomerStatuses.INACTIVE))
             {
-                throw;
+                return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
             }
+            var auth = _mapper.Map<AuthModel>(customer);
+            auth.Role = UserRoles.CUSTOMER;
+            var accessToken = GenerateJwtToken(auth);
+            return new AuthViewModel
+            {
+                AccessToken = accessToken,
+                User = new UserViewModel
+                {
+                    Id = customer.Id,
+                    Username = customer.Username,
+                    Name = customer.Name,
+                    Phone = customer.Phone,
+                    Role = UserRoles.CUSTOMER,
+                    Status = customer.Status,
+                    CreateAt = customer.CreateAt,
+                    Address = customer.Address,
+                }
+            }.Ok();
         }
 
         private async Task<IActionResult> AuthenticateAdmin(CertificateModel certificate)
         {
-            try
+            var admin = await _adminRepository.Where(x => x.Username.Equals(certificate.Username)
+                                                          && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
+            if (admin == null)
             {
-                var admin = await _adminRepository.Where(x => x.Username.Equals(certificate.Username)
-                                        && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
-                if (admin == null)
+                return AppErrors.INVALID_CERTIFICATE.BadRequest();
+            }
+            var auth = _mapper.Map<AuthModel>(admin);
+            auth.Role = UserRoles.ADMIN;
+            var accessToken = GenerateJwtToken(auth);
+            return new AuthViewModel
+            {
+                AccessToken = accessToken,
+                User = new UserViewModel
                 {
-                    return AppErrors.INVALID_CERTIFICATE.BadRequest();
+                    Id = admin.Id,
+                    Username = admin.Username,
+                    Role = UserRoles.ADMIN,
                 }
-                var auth = _mapper.Map<AuthModel>(admin);
-                auth.Role = UserRoles.ADMIN;
-                var accessToken = GenerateJwtToken(auth);
-                return new AuthViewModel
-                {
-                    AccessToken = accessToken,
-                    User = new UserViewModel
-                    {
-                        Id = admin.Id,
-                        Username = admin.Username,
-                        Role = UserRoles.ADMIN,
-                    }
-                }.Ok();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            }.Ok();
         }
 
         private async Task<IActionResult> AuthenticateStaff(CertificateModel certificate)
         {
-            try
+            var staff = await _staffRepository.Where(x => x.Username.Equals(certificate.Username)
+                                                          && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
+            if (staff == null)
             {
-                var staff = await _staffRepository.Where(x => x.Username.Equals(certificate.Username)
-                                        && x.Password.Equals(certificate.Password)).FirstOrDefaultAsync();
-                if (staff == null)
-                {
-                    return AppErrors.INVALID_CERTIFICATE.BadRequest();
-                }
-                if (staff.Status.Equals(StaffStatuses.INACTIVE))
-                {
-                    return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
-                }
-                var auth = _mapper.Map<AuthModel>(staff);
-                auth.Role = UserRoles.STAFF;
-                var accessToken = GenerateJwtToken(auth);
-                return new AuthViewModel
-                {
-                    AccessToken = accessToken,
-                    User = new UserViewModel
-                    {
-                        Id = staff.Id,
-                        Username = staff.Username,
-                        Name = staff.Name,
-                        Role = UserRoles.STAFF,
-                        Status = staff.Status,
-                        CreateAt = staff.CreateAt,
-                    }
-                }.Ok();
+                return AppErrors.INVALID_CERTIFICATE.BadRequest();
             }
-            catch (Exception)
+            if (staff.Status.Equals(StaffStatuses.INACTIVE))
             {
-                throw;
+                return AppErrors.INVALID_USER_UNACTIVE.NotAcceptable();
             }
+            var auth = _mapper.Map<AuthModel>(staff);
+            auth.Role = UserRoles.STAFF;
+            var accessToken = GenerateJwtToken(auth);
+            return new AuthViewModel
+            {
+                AccessToken = accessToken,
+                User = new UserViewModel
+                {
+                    Id = staff.Id,
+                    Username = staff.Username,
+                    Name = staff.Name,
+                    Role = UserRoles.STAFF,
+                    Status = staff.Status,
+                    CreateAt = staff.CreateAt,
+                }
+            }.Ok();
         }
 
         public async Task<IActionResult> GetInformation(Guid id)
         {
-            try
+            if (_adminRepository.Any(x => x.Id.Equals(id)))
             {
-                if (_adminRepository.Any(x => x.Id.Equals(id)))
+                var admin = await _adminRepository.Where(st => st.Id.Equals(id))
+                    .ProjectTo<AdminViewModel>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                if (admin != null)
                 {
-                    var admin = await _adminRepository.Where(st => st.Id.Equals(id))
-                                .ProjectTo<AdminViewModel>(_mapper.ConfigurationProvider)
-                                .FirstOrDefaultAsync();
-                    if (admin != null)
-                    {
-                        return admin.Ok();
-                    }
+                    return admin.Ok();
                 }
-                if (_staffRepository.Any(x => x.Id.Equals(id)))
-                {
-                    var staff = await _staffRepository.Where(st => st.Id.Equals(id))
-                                .ProjectTo<StaffViewModel>(_mapper.ConfigurationProvider)
-                                .FirstOrDefaultAsync();
-                    if (staff != null)
-                    {
-                        return staff.Ok();
-                    }
-                }
-                if (_customerRepository.Any(x => x.Id.Equals(id)))
-                {
-                    var customer = await _customerRepository.Where(st => st.Id.Equals(id))
-                                                    .ProjectTo<CustomerViewModel>(_mapper.ConfigurationProvider)
-                                                    .FirstOrDefaultAsync();
-                    if (customer != null)
-                    {
-                        return customer.Ok();
-                    }
-                }
-                return AppErrors.RECORD_NOT_FOUND.NotFound();
             }
-            catch (Exception)
+            if (_staffRepository.Any(x => x.Id.Equals(id)))
             {
-                throw;
+                var staff = await _staffRepository.Where(st => st.Id.Equals(id))
+                    .ProjectTo<StaffViewModel>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                if (staff != null)
+                {
+                    return staff.Ok();
+                }
             }
+            if (_customerRepository.Any(x => x.Id.Equals(id)))
+            {
+                var customer = await _customerRepository.Where(st => st.Id.Equals(id))
+                    .ProjectTo<CustomerViewModel>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                if (customer != null)
+                {
+                    return customer.Ok();
+                }
+            }
+            return AppErrors.RECORD_NOT_FOUND.NotFound();
         }
 
         public async Task<AuthModel> GetUser(Guid id)

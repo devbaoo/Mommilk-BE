@@ -11,21 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services.Implementations
 {
-    public class VNPayService : BaseService, IVNPayService
+    public class VnPayService(IUnitOfWork unitOfWork, IMapper mapper) : BaseService(unitOfWork, mapper), IVNPayService
     {
-        private const int DISCOUNT = 10;
-
-        private readonly ITransactionRepository _transactionRepository;
-        private readonly IOrderRepository _orderRepository;
-        private readonly IAdminRepository _adminRepository;
-
-        public VNPayService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
-        {
-            _transactionRepository = unitOfWork.Transaction;
-            _orderRepository = unitOfWork.Order;
-            _adminRepository = unitOfWork.Admin;
-        }
-
+        private readonly ITransactionRepository _transactionRepository = unitOfWork.Transaction;
+        private readonly IOrderRepository _orderRepository = unitOfWork.Order;
         private void UpdateFailedTransaction(ICollection<Transaction> transactions)
         {
             foreach (var transaction in transactions)
@@ -37,74 +26,59 @@ namespace Application.Services.Implementations
 
         public async Task<bool> AddRequest(Guid userId, Guid orderId, VnPayRequestModel model)
         {
-            try
+            var oldTransactions = await _transactionRepository.Where(tr => tr.CustomerId.Equals(userId) && tr.OrderId.Equals(orderId)).ToListAsync();
+
+            if (oldTransactions.Any())
             {
-                var oldTransactions = await _transactionRepository.Where(tr => tr.CustomerId.Equals(userId) && tr.OrderId.Equals(orderId)).ToListAsync();
-
-                if (oldTransactions.Any())
-                {
-                    UpdateFailedTransaction(oldTransactions);
-                }
-
-                var transaction = new Transaction
-                {
-                    Amount = model.Amount,
-                    CreateAt = DateTimeHelper.VnNow,
-                    CustomerId = userId,
-                    OrderId = orderId,
-                    Status = TransactionStatuses.Pending,
-                    Id = model.TxnRef,
-                };
-                _transactionRepository.Add(transaction);
-
-                var result = await _unitOfWork.SaveChangesAsync();
-
-                return result > 0;
+                UpdateFailedTransaction(oldTransactions);
             }
-            catch (Exception)
+
+            var transaction = new Transaction
             {
-                throw;
-            }
+                Amount = model.Amount,
+                CreateAt = DateTimeHelper.VnNow,
+                CustomerId = userId,
+                OrderId = orderId,
+                Status = TransactionStatuses.Pending,
+                Id = model.TxnRef,
+            };
+            _transactionRepository.Add(transaction);
+
+            var result = await _unitOfWork.SaveChangesAsync();
+
+            return result > 0;
         }
 
         public async Task<bool> AddResponse(VnPayResponseModel model)
         {
-            try
+            var transaction = await _transactionRepository.Where(transaction => transaction.Id.Equals(model.TxnRef)).FirstOrDefaultAsync();
+            if (transaction != null)
             {
-
-                var transaction = await _transactionRepository.Where(transaction => transaction.Id.Equals(model.TxnRef)).FirstOrDefaultAsync();
-                if (transaction != null)
+                if (model.TransactionStatus.Equals("02"))
                 {
-                    if (model.TransactionStatus.Equals("02"))
-                    {
-                        transaction.Status = TransactionStatuses.Canceled;
-                        _transactionRepository.Update(transaction);
-                        await _unitOfWork.SaveChangesAsync();
-                    }
-                    if (model.TransactionStatus.Equals("00") && transaction.Status != TransactionStatuses.Successful)
-                    {
-                        transaction.Status = TransactionStatuses.Successful;
-                        _transactionRepository.Update(transaction);
-
-                        var order = await _orderRepository.Where(x => x.Id.Equals(transaction.OrderId)).FirstOrDefaultAsync();
-
-                        if (order != null)
-                        {
-                            order.Status = OrderStatuses.PAID;
-                            order.IsPayment = true;
-                            _orderRepository.Update(order);
-                        }
-
-                        await _unitOfWork.SaveChangesAsync();
-                        return true;
-                    }
+                    transaction.Status = TransactionStatuses.Canceled;
+                    _transactionRepository.Update(transaction);
+                    await _unitOfWork.SaveChangesAsync();
                 }
-                return false;
+                if (model.TransactionStatus.Equals("00") && transaction.Status != TransactionStatuses.Successful)
+                {
+                    transaction.Status = TransactionStatuses.Successful;
+                    _transactionRepository.Update(transaction);
+
+                    var order = await _orderRepository.Where(x => x.Id.Equals(transaction.OrderId)).FirstOrDefaultAsync();
+
+                    if (order != null)
+                    {
+                        order.Status = OrderStatuses.PAID;
+                        order.IsPayment = true;
+                        _orderRepository.Update(order);
+                    }
+
+                    await _unitOfWork.SaveChangesAsync();
+                    return true;
+                }
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            return false;
         }
     }
 }

@@ -124,7 +124,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
-        [Authorize("staff", "customer")]
+        [Authorize]
         [Route("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderChangeModel model)
         {

@@ -13,7 +13,7 @@ namespace Infrastructure.Configurations
     {
         public static void AddDependenceInjection(this IServiceCollection services)
         {
-            // Service life time DI
+            // Service lifetime DI
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudStorageService, CloudStorageService>();
             services.AddScoped<IAuthService, AuthService>();
@@ -23,7 +23,7 @@ namespace Infrastructure.Configurations
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IVoucherService, VoucherService>();
             services.AddScoped<IProductLineService, ProductLineService>();
-            services.AddScoped<IVNPayService, VNPayService>();
+            services.AddScoped<IVNPayService, VnPayService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<IStatisticService, StatisticsService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();

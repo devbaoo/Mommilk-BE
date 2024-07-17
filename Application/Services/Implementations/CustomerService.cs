@@ -55,7 +55,7 @@ namespace Application.Services.Implementations
                 }
                 if (model.Phone != null && !model.Phone.IsNullOrEmpty())
                 {
-                    query = query.Where(c => c.Phone.Equals(model.Phone));
+                    query = query.Where(c => c.Phone != null && c.Phone.Equals(model.Phone));
                 }
                 if (model.Status != null && !model.Status.IsNullOrEmpty())
                 {

@@ -158,7 +158,7 @@ namespace Application.Services.Implementations
                 }
                 if (model.Purpose != null && !model.Purpose.IsNullOrEmpty())
                 {
-                    query = query.Where(q => q.Purpose.Contains(model.Purpose));
+                    query = query.Where(q => q.Purpose != null && q.Purpose.Contains(model.Purpose));
                 }
                 var results = await query
                     .Paginate(pagination)
@@ -260,7 +260,7 @@ namespace Application.Services.Implementations
             {
                 //Fetch adjusted product lines
                 var changes = await _productLineChangeRepository
-                    .Where(c => c.Purpose.Equals("purchase: " + id.ToString().ToLower()))
+                    .Where(c => c.Purpose != null && c.Purpose.Equals("purchase: " + id.ToString().ToLower()))
                     .ToListAsync();
                 foreach (var change in changes)
                 {

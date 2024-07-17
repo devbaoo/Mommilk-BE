@@ -23,20 +23,15 @@ namespace Infrastructure.Configurations
             {
                 context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
             }
-            else if(auth.Status.Equals(UserStatuses.INACTIVE))
-                {
-                context.Result = new JsonResult(new { message = "Account disabled" }) { StatusCode = StatusCodes.Status406NotAcceptable };
-            }
+            else if (auth.Status.Equals(UserStatuses.INACTIVE))
+                context.Result = new JsonResult(new { message = "Account disabled" })
+                    { StatusCode = StatusCodes.Status406NotAcceptable };
             else
             {
                 
                 var role = auth.Role;
-                var isValid = false;
+                bool isValid = Roles == null || Roles != null && Roles.Count == 0 || Roles != null && Roles.Contains(role.ToLower());
                 
-                if (Roles == null || Roles != null && Roles.Count == 0 || Roles != null && Roles.Contains(role.ToLower()))
-                {
-                    isValid = true;
-                }
                 if (!isValid)
                 {
                     context.Result = new JsonResult(new { message = "Forbidden" }) { StatusCode = StatusCodes.Status403Forbidden };

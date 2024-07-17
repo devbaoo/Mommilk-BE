@@ -10,7 +10,7 @@ namespace Domain.Models.Creates
     {
         public Guid ProductLineId { get; set; }
         public int Quantity { get; set; }
-        public string Purpose { get; set; }
-        public string IsImport { get; set; }
+        public string Purpose { get; set; } = null!;
+        public string IsImport { get; set; } = null!;
     }
 }

@@ -9,7 +9,6 @@ namespace Domain.Models.Creates
     public class ProductLineCreateModel
     {
         public int Quantity { get; set; }
-        public DateTime ImportDate { get; set; }
         public DateTime ExpiredAt { get; set; }
     }
 }

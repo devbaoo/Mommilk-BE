@@ -4,7 +4,6 @@ using AutoMapper.QueryableExtensions;
 using Common.Extensions;
 using Common.Helpers;
 using Data;
-using Data.Repositories.Implementations;
 using Data.Repositories.Interfaces;
 using Domain.Constants;
 using Domain.Entities;
@@ -16,21 +15,13 @@ using Domain.Models.Views;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services.Implementations
 {
-    public class VoucherService : BaseService, IVoucherService
+    public class VoucherService(IUnitOfWork unitOfWork, IMapper mapper)
+        : BaseService(unitOfWork, mapper), IVoucherService
     {
-        private readonly IVoucherRepository _voucherRepository;
-        public VoucherService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
-        {
-            _voucherRepository = unitOfWork.Voucher;
-        }
+        private readonly IVoucherRepository _voucherRepository = unitOfWork.Voucher;
 
         public async Task<IActionResult> GetVouchers(VoucherFilterModel filter, PaginationRequestModel pagination)
         {
@@ -68,125 +59,90 @@ namespace Application.Services.Implementations
 
         public async Task<IActionResult> GetValidVouchers()
         {
-            try
-            {
-                var vouchers = await _voucherRepository
+            var vouchers = await _voucherRepository
                 .Where(v => v.Status.Equals(VoucherStatuses.ACTIVE) && v.To > DateTimeHelper.VnNow && v.Quantity > 0)
                 .ProjectTo<VoucherViewModel>(_mapper.ConfigurationProvider)
                 .ToListAsync();
-                return vouchers.Ok();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return vouchers.Ok();
         }
 
         public async Task<IActionResult> GetVoucher(Guid id)
         {
-            try
-            {
-                var voucher = await _voucherRepository
+            var voucher = await _voucherRepository
                 .Where(v => v.Id == id)
                 .ProjectTo<VoucherViewModel>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
-                if (voucher != null) 
-                {
-                    return voucher.Ok();
-                }
-                return AppErrors.VOUCHER_NOT_EXIST.NotFound();
-            }
-            catch (Exception)
+            if (voucher != null) 
             {
-                throw;
+                return voucher.Ok();
             }
+            return AppErrors.VOUCHER_NOT_EXIST.NotFound();
         }
 
         public async Task<IActionResult> CreateVoucher(VoucherCreateModel model)
         {
-            try
-            {
-                var check = await ValidateNewVoucher(model);
-                if (check is ObjectResult objectResult && objectResult.StatusCode != 200) {
-                    return check;
-                }
-                var voucher = _mapper.Map<Voucher>(model);
-                _voucherRepository.Add(voucher);
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result > 0)
-                {
-                    return await GetVoucher(voucher.Id);
-                }
-                return AppErrors.CREATE_FAIL.UnprocessableEntity();
+            var check = await ValidateNewVoucher(model);
+            if (check is ObjectResult objectResult && objectResult.StatusCode != 200) {
+                return check;
             }
-            catch (Exception)
+            var voucher = _mapper.Map<Voucher>(model);
+            _voucherRepository.Add(voucher);
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result > 0)
             {
-                throw;
+                return await GetVoucher(voucher.Id);
             }
+            return AppErrors.CREATE_FAIL.UnprocessableEntity();
         }
 
         public async Task<IActionResult> UpdateVoucher(Guid id, VoucherUpdateModel model)
         {
-            try
-            {
-                var target = await _voucherRepository
+            var target = await _voucherRepository
                 .Where(v => v.Id.Equals(id))
                 .FirstOrDefaultAsync();
 
-                if (target == null)
-                {
-                    return AppErrors.VOUCHER_NOT_ENOUGH.NotFound();
-                }
-                if (await _voucherRepository
+            if (target == null)
+            {
+                return AppErrors.VOUCHER_NOT_ENOUGH.NotFound();
+            }
+            if (await _voucherRepository
                     .Where(v => v.Code.Equals(model.Code))
                     .AnyAsync() && target.Code != model.Code)
-                {
-                    return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
-                }
-                if (model.Value < 1)
-                {
-                    return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
-                }
-
-                _mapper.Map(model, target);
-                _voucherRepository.Update(target);
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result > 0)
-                {
-                    return await GetVoucher(id);
-                }
-                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
-            }
-            catch (Exception)
             {
-                throw;
+                return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
             }
+            if (model.Value < 1)
+            {
+                return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
+            }
+
+            _mapper.Map(model, target);
+            _voucherRepository.Update(target);
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result > 0)
+            {
+                return await GetVoucher(id);
+            }
+            return AppErrors.UPDATE_FAIL.UnprocessableEntity();
         }
 
         private async Task<IActionResult> ValidateNewVoucher(VoucherCreateModel model)
         {
-            try
+            if (model.From >= model.To || model.From < DateTimeHelper.VnNow)
             {
-                if (model.From >= model.To || model.From < DateTimeHelper.VnNow)
-                {
-                    return AppErrors.INVALID_DATE.UnprocessableEntity();
-                }
-                if (await _voucherRepository
+                return AppErrors.INVALID_DATE.UnprocessableEntity();
+            }
+            if (await _voucherRepository
                     .Where(v => v.Code.Equals(model.Code))
                     .AnyAsync())
-                {
-                    return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
-                }
-                if (model.Value < 1)
-                {
-                    return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
-                }
-                return "Valid".Ok();
-            }
-            catch (Exception)
             {
-                throw;
+                return AppErrors.VOUCHER_DUPLICATE.UnprocessableEntity();
             }
+            if (model.Value < 1)
+            {
+                return AppErrors.VOUCHER_NO_VALUE.UnprocessableEntity();
+            }
+            return "Valid".Ok();
         }
     }
 }

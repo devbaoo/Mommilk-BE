@@ -9,7 +9,6 @@ namespace Domain.Models.Updates
     public class ProductLineUpdateModel
     {
         public int Quantity { get; set; }
-
         public DateTime ExpiredAt { get; set; }
     }
 }

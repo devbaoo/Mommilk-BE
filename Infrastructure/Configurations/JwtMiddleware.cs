@@ -8,23 +8,16 @@ using System.Text;
 
 namespace Infrastructure.Configurations
 {
-    public class JwtMiddleware
+    public class JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings)
     {
-        private readonly RequestDelegate _next;
-        private readonly AppSettings _appSettings;
-
-        public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings)
-        {
-            _next = next;
-            _appSettings = appSettings.Value;
-        }
+        private readonly AppSettings _appSettings = appSettings.Value;
 
         public async Task Invoke(HttpContext context, IAuthService authService)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (token != null)
                 await AttachUserToContext(context, authService, token);
-            await _next(context);
+            await next(context);
         }
 
         private async Task AttachUserToContext(HttpContext context, IAuthService authService, string token)

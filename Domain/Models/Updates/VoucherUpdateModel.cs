@@ -12,8 +12,6 @@ namespace Domain.Models.Updates
 
         public string Name { get; set; } = null!;
 
-        public string ThumbnailUrl { get; set; } = null!;
-
         public DateTime From { get; set; }
 
         public DateTime To { get; set; }

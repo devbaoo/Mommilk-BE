@@ -1,107 +1,124 @@
-﻿using Application.Services.Interfaces;
+﻿
+using Application.Services.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Extensions;
 using Data;
-using Data.Repositories.Implementations;
 using Data.Repositories.Interfaces;
+using Domain.Constants;
+using Domain.Entities;
+using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
+using Domain.Models.Updates;
 using Domain.Models.Views;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services.Implementations
 {
     public class ProductService : BaseService, IProductService
     {
         private readonly IProductRepository _productRepository;
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        private readonly ICloudStorageService _cloudStorageService;
+        private readonly IProductLineRepository _productLineRepository;
+
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper)
         {
             _productRepository = unitOfWork.Product;
+            _cloudStorageService = cloudStorageService;
+            _productLineRepository = unitOfWork.ProductLine;
         }
 
         public async Task<IActionResult> GetProducts(ProductFilterModel filter, PaginationRequestModel pagination)
         {
+            var query = _productRepository.GetAll();
+            if (filter.Search != null && !filter.Search.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.Name.Contains(filter.Search));
+            }
+            if (filter.Categories != null && filter.Categories.Count > 0)
+            {
+                query = query.Where(x => filter.Categories.All(fc => x.ProductCategories.Select(x => x.CategoryId).Contains(fc)));
+            }
+
+            var totalRows = query.Count();
+            var categories = await query
+                .ProjectTo<ProductViewModel>(_mapper.ConfigurationProvider)
+                .Paginate(pagination)
+                .ToListAsync();
+            return categories.ToPaged(pagination, totalRows).Ok();
+        }
+
+        public async Task<IActionResult> GetProduct(Guid id)
+        {
             try
             {
-                var query = _productRepository.GetAll();
-
-                if (filter.Name != null)
-                {
-                    query = query.Where(x => x.Name.Contains(filter.Name));
-                }
-
-                if (filter.Origin != null)
-                {
-                    query = query.Where(x => x.Origin.Contains(filter.Origin));
-                }
-
-                if (filter.Ingredient != null)
-                {
-                    query = query.Where(x => x.Ingredient.Contains(filter.Ingredient));
-                }
-
-                if (filter.SweetLevel != null)
-                {
-                    query = query.Where(x => x.SweetLevel.Contains(filter.SweetLevel));
-                }
-                if (filter.Flavour != null)
-                {
-                    query = query.Where(x => x.Flavour.Contains(filter.Flavour));
-                }
-                if (filter.Sample != null)
-                {
-                    query = query.Where(x => x.Sample.Contains(filter.Sample));
-                }
-                if (filter.Capacity != null)
-                {
-                    query = query.Where(x => x.Capacity.Contains(filter.Capacity));
-                }
-                if (filter.Description != null)
-                {
-                    query = query.Where(x => x.Description.Contains(filter.Description));
-                }
-                //if (filter.Price != null)
-                //{
-                //    query = query.Where(x => x.Price.Contains(filter.Price));
-                //}
-                // if (filter.Quantity != null)
-                // {
-                //     query = query.Where(x => x.Quantity.Contains(filter.Quantity));
-                // }
-                //if (filter.Id != null)
-                // {
-                //     query = query.Where(x => x.Id.Contains(filter.Id));
-                // }
-                //  if (filter.StoreId != null)
-                //  {
-                //      query = query.Where(x => x.StoreId.Contains(filter.StoreId));
-                // }
-                // if (filter.CreateAt != null)
-                // {
-                //     query = query.Where(x => x.CreateAt.Contains(filter.CreateAt));
-                //  }
-                if (filter.Status != null)
-                {
-                    query = query.Where(x => x.Status.Contains(filter.Status));
-                }
-
-                var totalRows = _productRepository.Count();
-                var products = await query
-
-                    .Paginate(pagination)
+                var product = await _productRepository.Where(x => x.Id.Equals(id))
                     .ProjectTo<ProductViewModel>(_mapper.ConfigurationProvider)
-                    .ToListAsync();
+                    .FirstOrDefaultAsync();
 
-                //return new OkObjectResult(categories.ToPaged(pagination, totalRows));
-                return products.ToPaged(pagination, totalRows).Ok();
+                if (product == null)
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+
+                return product.Ok();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> CreateProduct(ProductCreateModel model)
+        {
+            try
+            {
+                var product = _mapper.Map<Product>(model);
+                if (model.Thumbnail != null)
+                {
+                    product.ThumbnailUrl = await _cloudStorageService.Upload(Guid.NewGuid(), model.Thumbnail);
+                }
+                _productRepository.Add(product);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return await GetProduct(product.Id);
+                }
+                return AppErrors.CREATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> UpdateProduct(Guid id, ProductUpdateModel model)
+        {
+            try
+            {
+                var product = await _productRepository.Where(x => x.Id.Equals(id))
+                    .FirstOrDefaultAsync();
+
+                if (product == null)
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+
+                _mapper.Map(model, product);
+                if (model.Thumbnail != null)
+                {
+                    product.ThumbnailUrl = await _cloudStorageService.Upload(Guid.NewGuid(), model.Thumbnail);
+                }
+                _productRepository.Update(product);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return await GetProduct(id);
+                }
+                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
             }
             catch (Exception)
             {
@@ -110,5 +127,3 @@ namespace Application.Services.Implementations
         }
     }
 }
-
-

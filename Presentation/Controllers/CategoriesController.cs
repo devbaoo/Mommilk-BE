@@ -1,10 +1,10 @@
 ﻿using Application.Services.Interfaces;
-using Common.Extensions;
+using Domain.Constants;
 using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
 using Domain.Models.Updates;
-using Microsoft.AspNetCore.Http;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -19,16 +19,22 @@ namespace Presentation.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCategories([FromQuery] CategoryFilterModel filter, [FromQuery] PaginationRequestModel pagination)
+        [HttpPost]
+        [Route("filter")]
+        public async Task<IActionResult> GetCategories([FromBody] CategoryFilterModel filter)
         {
             try
             {
-                return await _categoryService.GetCategories(filter, pagination);
+                var aaa = new PaginationRequestModel()
+                {
+                    PageNumber = 0,
+                    PageSize = 10,
+                };
+                return await _categoryService.GetCategories(filter, aaa);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return ex.Message.InternalServerError();
+                return new BadRequestObjectResult(e.Message);
             }
         }
 
@@ -47,6 +53,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserRoles.STAFF)]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateModel model)
         {
             try
@@ -60,8 +67,9 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(UserRoles.STAFF)]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryUpdateModel model)
+        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id ,[FromBody] CategoryUpdateModel model)
         {
             try
             {

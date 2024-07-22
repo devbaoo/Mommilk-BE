@@ -1,4 +1,4 @@
-﻿using Application.Mappings;
+using Application.Mappings;
 using Application.Settings;
 using Domain.Entities;
 using Infrastructure.Configurations;
@@ -8,14 +8,17 @@ using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowSpecificOrigins = "_allowSpecificOrigins";
-var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Add services to the container.
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<SuaMe88Context>(options =>
-        options.UseSqlServer(sqlConnectionString));
-builder.Services.AddControllers();
+        options.UseSqlServer(sqlConnectionString, optionsBuilder =>
+        {
+            optionsBuilder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+        }));
 
+builder.Services.AddControllers();
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>
     {
@@ -24,7 +27,7 @@ builder.Services.AddControllersWithViews()
         options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
     }
 );
-builder.Services.AddSwaggerGenNewtonsoftSupport();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: allowSpecificOrigins,
@@ -35,24 +38,28 @@ builder.Services.AddCors(options =>
                           policy.AllowAnyMethod();
                       });
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwagger();
 builder.Services.AddDependenceInjection();
+builder.Services.AddSwagger();
+builder.Services.AddFirebase();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-//builder.Services.AddFirebase();
+
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 app.UseCors(allowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-//app.UseJwt();
+app.UseJwt();
 
 app.UseAuthorization();
 

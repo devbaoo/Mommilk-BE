@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,11 +9,9 @@ namespace Domain.Models.Views
     public class OrderDetailViewModel
     {
         public Guid Id { get; set; }
-
-        public double Price { get; set; }
-
-        public int Quantity { get; set; }
-
         public ProductViewModel Product { get; set; } = null!;
+        public int Quantity { get; set; }
+        public int Price { get; set; }
+        public bool HasFeedback { get; set; }
     }
 }

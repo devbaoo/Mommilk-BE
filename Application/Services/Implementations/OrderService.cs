@@ -2,37 +2,44 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Extensions;
+using Common.Helpers;
 using Data;
+using Data.Repositories.Implementations;
 using Data.Repositories.Interfaces;
+using Domain.Constants;
 using Domain.Entities;
-using Domain.Models.Create;
+using Domain.Models.Creates;
 using Domain.Models.Filters;
 using Domain.Models.Pagination;
+using Domain.Models.Updates;
 using Domain.Models.Views;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services.Implementations
 {
     public class OrderService : BaseService, IOrderService
     {
-        private readonly new IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IVoucherRepository _voucherRepository;
+        private readonly IProductLineRepository _productLineRepository;
+        private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly IProductLineService _productLineService;
+        private readonly ICustomerRepository _customerRepository;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IProductLineService productLineService) : base(unitOfWork, mapper)
         {
-            _mapper = mapper;
             _orderRepository = unitOfWork.Order;
-            _orderDetailRepository = unitOfWork.OrderDetail;
             _productRepository = unitOfWork.Product;
+            _voucherRepository = unitOfWork.Voucher;
+            _productLineRepository = unitOfWork.ProductLine;
+            _orderDetailRepository = unitOfWork.OrderDetail;
+            _customerRepository = unitOfWork.Customer;
+            _productLineService = productLineService;
         }
 
         public async Task<IActionResult> GetOrders(OrderFilterModel filter, PaginationRequestModel pagination)
@@ -40,17 +47,41 @@ namespace Application.Services.Implementations
             try
             {
                 var query = _orderRepository.GetAll();
-                if (filter.CreateAt != null)
+                if (filter.Receiver != null && !filter.Receiver.IsNullOrEmpty())
                 {
-                    query = query
-                        .Where(x => x.CreateAt.Date == filter.CreateAt.Value.Date);
+                    query = query.Where(o => o.Receiver.Equals(filter.Receiver));
                 }
-                var list = await query
-                    .Paginate(pagination)
+                if (filter.Phone != null && !filter.Phone.IsNullOrEmpty())
+                {
+                    query = query.Where(o => o.Phone.Equals(filter.Phone));
+                }
+                if (filter.From != null)
+                {
+                    query = query.Where(o => o.CreateAt >= filter.From);
+                }
+                if (filter.To != null)
+                {
+                    query = query.Where(o => o.CreateAt <= filter.To);
+                }
+                if (filter.Status != null && !filter.Status.IsNullOrEmpty())
+                {
+                    query = query.Where(o => o.Status.Equals(filter.Status));
+                }
+                if (filter.IsPayment != null)
+                {
+                    query = query.Where(o => o.IsPayment.Equals(filter.IsPayment));
+                }
+                if (filter.CustomerId != null) 
+                {
+                    query = query.Where(o => o.CustomerId.Equals(filter.CustomerId));
+                }
+                var totalRows = query.Count();
+                var result = await query
+                    .OrderByDescending(o => o.CreateAt)
                     .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
-                    .OrderByDescending(x => x.CreateAt)
+                    .Paginate(pagination)
                     .ToListAsync();
-                return list.Ok();
+                return result.ToPaged(pagination, totalRows).Ok();
             }
             catch (Exception)
             {
@@ -58,34 +89,463 @@ namespace Application.Services.Implementations
             }
         }
 
-        //public async Task<IActionResult> CreateOrder(OrderCreateModel order)
+        public async Task<IActionResult> GetOrder(Guid id)
+        {
+            try
+            {
+                var order = await _orderRepository.Where(x => x.Id == id)
+                    .ProjectTo<OrderViewModel>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                return order != null ? order.Ok() : AppErrors.RECORD_NOT_FOUND.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> CreateOrder(Guid customerId, OrderCreateModel model)
+        {
+            try
+            {
+                var customer = await _customerRepository
+                    .Where(cs => cs.Id.Equals(customerId))
+                    .Select(cs => cs.Status)
+                    .FirstOrDefaultAsync();
+                if (customer == null || customer.Equals(CustomerStatuses.INACTIVE)) 
+                {
+                    return AppErrors.INVALID_USER_UNACTIVE.Forbidden();
+                }
+                if(!model.PaymentMethod.Equals(PaymentMethods.VNPAY) && !model.PaymentMethod.Equals(PaymentMethods.CASH))
+                {
+                    return AppErrors.INVALID_PAYMENT_METHOD.UnprocessableEntity();
+                }
+                var voucherInvalids = await CheckValidVoucher(model);
+                if (voucherInvalids.Count() > 0)
+                {
+                    return voucherInvalids.BadRequest();
+                }
+                foreach (var detail in model.OrderDetails) 
+                {
+                    if(!await _productLineService.CheckProductInventory(new ProductLineQuantityChangeModel
+                    {
+                        ProductId = detail.ProductId,
+                        Quantity = detail.Quantity,
+                    }))
+                    {
+                        return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.BadRequest();
+                    }
+                }
+                var order = _mapper.Map<Order>(model);
+                order.CustomerId = customerId;
+                order.IsPayment = false;
+                order.Status = OrderStatuses.PENDING;
+                if (model.PaymentMethod.Equals(PaymentMethods.VNPAY))
+                {
+                    order.Status = OrderStatuses.PAID;
+                    order.IsPayment = true;
+                }
+                _orderRepository.Add(order);
+
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    await CalculateVoucherQuantity(model);
+                    if (order.PaymentMethod.Equals(PaymentMethods.VNPAY))
+                    {
+                        await ConfirmOrder(order.Id);
+                    }
+                    return await GetOrder(order.Id);
+                }
+
+                return AppErrors.CREATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> ConfirmOrder(Guid id)
+        {
+            try
+            {
+                var order = await _orderRepository
+                .Where(o => o.Id.Equals(id))
+                .FirstOrDefaultAsync();
+                if (order != null)
+                {
+                    if (order.Status == OrderStatuses.PENDING || order.Status == OrderStatuses.PAID || order.Status == OrderStatuses.DELIVERING)
+                    {
+                        var orderDetails = await _orderDetailRepository
+                        .Where(od => od.OrderId.Equals(id))
+                        .ToListAsync();
+
+                        var result = await _productLineService.ReduceProductLineQuantity(orderDetails, "purchase: " + id.ToString().ToLower());
+                        if (result is ObjectResult objectResult && objectResult.StatusCode == 422)
+                        {
+                            return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.UnprocessableEntity();
+                        }
+
+                        order.Status = OrderStatuses.CONFIRMED;
+                        _orderRepository.Update(order);
+                        await _unitOfWork.SaveChangesAsync();
+                        return AppNotifications.CONFIRMED_ORDER.Ok();
+                    }
+                    return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity(); 
+                }
+                else
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> DeliverOrder(Guid orderId)
+        {
+            try
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(orderId))
+                    .FirstOrDefaultAsync();
+                if (order == null)
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+                if (order.Status != OrderStatuses.CONFIRMED)
+                {
+                    return AppErrors.ORDER_NOT_CONFIRMED.UnprocessableEntity();
+                }
+                order.Status = OrderStatuses.DELIVERING;
+                _orderRepository.Update(order);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return AppNotifications.DELIVERING_ORDER.Ok();
+                }
+                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> CompleteOrder(Guid id)
+        {
+            try
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(id))
+                    .FirstOrDefaultAsync();
+                if (order != null)
+                {
+                    if (order.Status != OrderStatuses.DELIVERING)
+                    {
+                        return AppErrors.INVALID_ORDER_STATUS.UnprocessableEntity();
+                    }
+                    order.Status = OrderStatuses.COMPLETED;
+                    if (order.IsPayment != true)
+                    {
+                        order.IsPayment = true;
+                    }
+                    _orderRepository.Update(order);
+                    var result = await _unitOfWork.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return AppNotifications.DELIVERING_ORDER.Ok();
+                    }
+                    return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+                }
+                return AppErrors.RECORD_NOT_FOUND.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> NoteDeliveringOrder(OrderChangeModel model)
+        {
+            try
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(model.OrderId))
+                    .FirstOrDefaultAsync();
+                if (order != null)
+                {
+                    if (order.Status != OrderStatuses.DELIVERING && order.Status != OrderStatuses.CONFIRMED)
+                    {
+                        return AppErrors.INVALID_STATUS.UnprocessableEntity();
+                    }
+                    if (model.Note != null && !model.Note.IsNullOrEmpty()) {
+                        if (order.Note == null || order.Note.IsNullOrEmpty())
+                        {
+                            order.Note = model.Note;
+                        }
+                        else
+                        {
+                            order.Note += "\n" + model.Note;
+                        }
+                    }
+                    order.Status = OrderStatuses.DELIVERING;
+                    _orderRepository.Update(order);
+                    var result = await _unitOfWork.SaveChangesAsync();
+                    if(result > 0) 
+                    {
+                        return AppNotifications.NOTED_DELIVERY.Ok();
+                    }                    
+                }
+                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> CancelOrder(OrderChangeModel model)
+        {
+            try 
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(model.OrderId))
+                    .FirstOrDefaultAsync();
+                if(order != null)
+                {
+                    if (order.PaymentMethod == PaymentMethods.VNPAY)
+                    {
+                        return AppErrors.INVALID_OPERATION.BadRequest();
+                    }
+                    if (!order.Status.Equals(OrderStatuses.PENDING) && !order.Status.Equals(OrderStatuses.CONFIRMED) && !order.Status.Equals(OrderStatuses.DELIVERING))
+                    {
+                        return AppErrors.INVALID_STATUS.BadRequest();
+                    }
+
+                    //return product
+                    if (order.Status.Equals(OrderStatuses.CONFIRMED) || order.Status.Equals(OrderStatuses.DELIVERING))
+                    {
+                        var result = await _productLineService.ReturnProductLineQuantity(order.Id);
+                        if (result is ObjectResult objectResult && objectResult.StatusCode == 422)
+                        {
+                            order.Note += "/n" + AppErrors.RETURN_FAILED;
+                        }
+                    }
+
+                    //add note
+                    if (order.Note == null || order.Note.IsNullOrEmpty())
+                    {
+                        order.Note = model.Note;
+                    } else
+                    {
+                        order.Note += "\n" + model.Note;
+                    }
+                    
+                    order.Status = OrderStatuses.CANCELED;
+                    _orderRepository.Update(order);
+                    await _unitOfWork.SaveChangesAsync();
+                    return AppNotifications.CANCELED_ORDER.Ok();
+                }
+                else
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> UpdateOrderStatus(OrderStatusUpdateModel model) 
+        {
+            try
+            {
+                var order = await _orderRepository
+                    .Where(o => o.Id.Equals(model.Id))
+                    .FirstOrDefaultAsync();
+                if(order == null)
+                {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+                _mapper.Map(model, order);
+                _orderRepository.Update(order);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return await GetOrder(order.Id);
+                }
+                return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+            }
+            catch (Exception) 
+            {
+                throw;
+            }
+        }
+
+        private async Task<ICollection<string>> CheckValidVoucher(OrderCreateModel order)
+        {
+            try
+            {
+                var errors = new List<string>();
+                foreach (var item in order.OrderVouchers)
+                {
+                    var voucher = await _voucherRepository
+                        //Where(x => x.Id.Equals(item.VoucherId) && x.From <= DateTimeHelper.VnNow && x.To >= DateTimeHelper.VnNow)
+                        .Where(x => x.Id.Equals(item.VoucherId) && x.From <= DateTimeHelper.VnNow && x.To >= DateTimeHelper.VnNow && x.Status.Equals(VoucherStatuses.ACTIVE))
+                        .FirstOrDefaultAsync();
+                    if (voucher != null)
+                    {
+                        if (voucher.Quantity < 1)
+                        {
+                            errors.Add($"{AppErrors.VOUCHER_NOT_ENOUGH}: {voucher.Name}");
+                        }
+                    }
+                    else
+                    {
+                        errors.Add($"{AppErrors.VOUCHER_NOT_EXIST}: {item.VoucherId}");
+                    }
+                }
+                return errors;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private async Task CalculateVoucherQuantity(OrderCreateModel order)
+        {
+            try
+            {
+                var vouchers = new List<Voucher>();
+                foreach (var item in order.OrderVouchers)
+                {
+                    var voucher = await _voucherRepository.Where(x => x.Id.Equals(item.VoucherId)).FirstOrDefaultAsync();
+                    if (voucher != null)
+                    {
+                        if (voucher.Quantity > 0)
+                        {
+                            voucher.Quantity = voucher.Quantity - 1;
+                            vouchers.Add(voucher);
+                        }
+                    }
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Reduce product line quantity
+        //private async Task<IActionResult> ReduceProductLineQuantity(ICollection<OrderDetail> models)
         //{
         //    try
         //    {
-        //        var tempOrder = new Order
+        //        foreach (var model in models)
         //        {
-        //            Id = Guid.NewGuid(),
-        //            CustomerId = order.CustomerId,
-        //            Address = order.Address,
-        //            Phone = order.Phone,
-        //            Recipient = order.Recipient,
-        //            Amount = order.Amount,
-        //            PaymentMethod = order.PaymentMethod,
-        //            Status = order.Status,
-        //            CreateAt = DateTime.Now
-        //        };
-        //        _orderRepository.Add(tempOrder);
-        //        var createdOrder = await _unitOfWork.SaveChangesAsync();
-        //        if(createdOrder > 0)
-        //        {
-        //            foreach (OrderDetailCreateModel orderDetail in order.OrderDetails) {
-        //                _orderDetailRepository.Add(new OrderDetail
+        //            var productLineTarget = new ProductLineQuantityReductionModel
+        //            {
+        //                ProductId = model.ProductId,
+        //                Quantity = model.Quantity,
+        //            };
+
+        //            // Fetch matching product lines
+        //            var productLines = await _productLineRepository
+        //                .Where(pl => pl.ProductId.Equals(productLineTarget.ProductId) && pl.Quantity > 0 && pl.ExpiredAt > DateTimeHelper.VnNow)
+        //                .OrderBy(pl => pl.ExpiredAt)
+        //                .ToListAsync();
+
+        //            int toReduce = productLineTarget.Quantity;
+        //            foreach (var productLine in productLines)
+        //            {
+        //                if (toReduce <= 0)
         //                {
-                            
+        //                    break;
         //                }
-        //                );
+
+        //                if (productLine.Quantity >= toReduce)
+        //                {
+        //                    productLine.Quantity -= toReduce;
+        //                    toReduce = 0;
+        //                }
+        //                else
+        //                {
+        //                    toReduce -= productLine.Quantity;
+        //                    productLine.Quantity = 0;
+        //                }
         //            }
-        //        }                
+
+        //            if (toReduce > 0)
+        //            {
+        //                return AppErrors.PRODUCT_INSTOCK_NOT_ENOUGH.UnprocessableEntity();
+        //            }
+        //        }
+
+        //        await _unitOfWork.SaveChangesAsync();
+        //        return "Trừ hàng kho thành công".Ok();
+        //    }
+        //    catch(Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+        //public async Task<IActionResult> PayOrder(Guid id)
+        //{
+        //    try
+        //    {
+        //        var order = await _orderRepository
+        //            .Where(o => o.Id.Equals(id))
+        //            .FirstOrDefaultAsync();
+        //        if(order == null)
+        //        {
+        //            return AppErrors.RECORD_NOT_FOUND.NotFound();
+        //        }
+        //        order.Status = OrderStatuses.PAID;
+        //        _orderRepository.Update(order);
+        //        var result = await _unitOfWork.SaveChangesAsync();
+        //        if(result > 0)
+        //        {
+        //            string noti = "Order " + order.Id + " paid.";
+        //            return noti.Ok();
+        //        }
+        //        return AppErrors.UPDATE_FAIL.UnprocessableEntity();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+        //Old product update
+        //private async Task CalculateProductQuantity(Order order)
+        //{
+        //    try
+        //    {
+        //        var products = new List<Product>();
+        //        foreach (var item in order.OrderDetails)
+        //        {
+        //            var product = await _productRepository.Where(x => x.Id.Equals(item.ProductId)).FirstOrDefaultAsync();
+        //            if (product == null)
+        //            {
+        //                continue;
+        //            }
+        //            product.Quantity = product.Quantity - item.Quantity;
+        //            products.Add(product);
+        //        }
+        //        // Update list product da duoc chinh sua tren code
+        //        _productRepository.UpdateRange(products);
+
+        //        // Luu thay doi xuong database
+        //        await _unitOfWork.SaveChangesAsync();
         //    }
         //    catch (Exception)
         //    {

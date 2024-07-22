@@ -135,55 +135,69 @@ namespace Application.Services.Implementations
 
         public async Task<IActionResult> ChangeStatus (CustomerStatusUpdateModel model)
         {
-            var customer = await _customerRepository
-                .Where(c => c.Id.Equals(model.CustomerId))
-                .FirstOrDefaultAsync();
-            if (customer == null)
+            try
             {
-                return AppErrors.RECORD_NOT_FOUND.NotFound();
-            }
-            if (model.Status != null)
-            {
-                switch (model.Status)
+                var customer = await _customerRepository
+                    .Where(c => c.Id.Equals(model.CustomerId))
+                    .FirstOrDefaultAsync();
+                if (customer == null)
                 {
+                    return AppErrors.RECORD_NOT_FOUND.NotFound();
+                }
+                if (model.Status != null)
+                {
+                switch (model.Status)
+                    {
                     case CustomerStatuses.ACTIVE when customer.Status.Equals(CustomerStatuses.ACTIVE):
-                        return AppErrors.NO_CHANGE.UnprocessableEntity();
+                            return AppErrors.NO_CHANGE.UnprocessableEntity();
                     case CustomerStatuses.ACTIVE:
                         customer.Status = CustomerStatuses.INACTIVE;
                         break;
                     case CustomerStatuses.INACTIVE when customer.Status.Equals(CustomerStatuses.INACTIVE):
-                        return AppErrors.NO_CHANGE.UnprocessableEntity();
+                            return AppErrors.NO_CHANGE.UnprocessableEntity();
                     case CustomerStatuses.INACTIVE:
                         customer.Status = CustomerStatuses.INACTIVE;
                         break;
                     default:
                         return AppErrors.INVALID_STATUS.UnprocessableEntity();
+                    }
                 }
-            }
-            _customerRepository.Update(customer);
-            var result = await _unitOfWork.SaveChangesAsync();
+                _customerRepository.Update(customer);
+                var result = await _unitOfWork.SaveChangesAsync();
             return result > 0 ? AppNotifications.UPDATED_STATUS.Ok() : AppErrors.UPDATE_FAIL.UnprocessableEntity();
         }
 
         public async Task<IActionResult> CreateCustomer(CustomerCreateModel model)
         {
-            if (IsCustomerExists(model.Username))
+            try
             {
-                return AppErrors.USERNAME_EXIST.Conflict();
+                if (IsCustomerExists(model.Username))
+                {
+                    return AppErrors.USERNAME_EXIST.Conflict();
+                }
+                var customer = _mapper.Map<Customer>(model);
+                _customerRepository.Add(customer);
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return await GetCustomer(customer.Id);
+                }
+                return AppErrors.CREATE_FAIL.UnprocessableEntity();
             }
-            var customer = _mapper.Map<Customer>(model);
-            _customerRepository.Add(customer);
-            var result = await _unitOfWork.SaveChangesAsync();
-            if (result > 0)
+            catch (Exception)
             {
-                return await GetCustomer(customer.Id);
+                throw;
             }
-            return AppErrors.CREATE_FAIL.UnprocessableEntity();
         }
 
         private bool IsCustomerExists(string username)
-        {
-            return _customerRepository.Any(x => x.Username.Equals(username));
+            {
+                return _customerRepository.Any(x => x.Username.Equals(username));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
